@@ -187,49 +187,80 @@ PIP_LIMB = "#D5D9E0"
 EGG = "M512,560 C720,560 800,860 800,1040 C800,1240 680,1360 512,1360 C344,1360 224,1240 224,1040 C224,860 304,560 512,560 Z"
 
 
-def pip_front(bg):
-    s = Svg(1024, 1536, bg)
-    s.shadow(512, 1405, 270, 34)
-    for x in (440, 584):
-        s.ell(x, 1368, 82, 40, s.ball(G4))
-    for pts in ([(262, 1030), (185, 1120), (200, 1235)],):
-        arm(s, pts, 54, PIP_LIMB, 42)
-        arm(s, mirror(pts), 54, PIP_LIMB, 42)
+FEATHER = "M0,0 C-22,-55 -17,-105 0,-135 C17,-105 22,-55 0,0 Z"
+BEAK_UP = "M456,955 Q512,925 568,955 Q545,985 512,1002 Q479,985 456,955 Z"
+BEAK_LO = "M480,975 L544,975 Q538,1012 512,1036 Q486,1012 480,975 Z"
+PIP_WING = "M262,950 C150,980 100,1090 112,1235 Q140,1210 158,1248 Q178,1216 200,1242 Q222,1212 240,1236 Q246,1180 266,1150 Z"
+
+
+def feathers(s, x, y, angles, scale=1.0, fill=G5):
+    for a in angles:
+        s.add('<path d="%s" fill="%s" stroke="%s" stroke-width="%d" stroke-linejoin="round" vector-effect="non-scaling-stroke" transform="translate(%g %g) rotate(%g) scale(%g)"/>'
+              % (FEATHER, s.ball(fill), OUT, SW, x, y, a, scale))
+
+
+def bird_foot(s, x, y, toes):
+    s.tube("M%g,%g L%g,%g" % (x, y - 30, x, y), 18, GOLD)
+    for dx, dy in toes:
+        s.tube("M%g,%g L%g,%g" % (x, y, x + dx, y + dy), 16, GOLD)
+
+
+def draw_pip_front(s):
+    s.shadow(512, 1415, 270, 34)
+    for x in (450, 574):
+        bird_foot(s, x, 1385, ((-44, 22), (0, 30), (44, 22)))
+    feathers(s, 512, 590, (-28, 0, 28))
+    s.path(PIP_WING, s.ball(PIP_LIMB))
+    s.add('<g transform="translate(1024 0) scale(-1 1)">')
+    s.path(PIP_WING, s.ball(PIP_LIMB))
+    s.add('</g>')
     s.path(EGG, s.ball(PIP_BODY))
     s.add('<ellipse cx="512" cy="1235" rx="150" ry="95" fill="#FFF" opacity="0.6"/>')
     s.shine(380, 700, 60, 30)
-    s.tube("M512,566 C500,500 560,470 582,512 C596,545 560,566 545,540", 22, G5)
     for x in (340, 684):
         s.add('<ellipse cx="%d" cy="985" rx="42" ry="22" fill="%s" opacity="0.4"/>' % (x, BLUSH))
-    face(s, 512, 845, 204, 64, 78, 140, 120, "neutral", PIP_LIMB, 50)
+    for side in (-1, 1):
+        ex = 512 + side * 102
+        eye(s, ex, 845, 64, 78, "neutral", PIP_LIMB, side)
+        brow(s, ex, 845 - 78 - 50, 64 * 1.4, "neutral", side)
     for x in (410, 614):  # oversized round glasses = signature feature
         s.add('<circle cx="%d" cy="845" r="96" fill="#FFF" fill-opacity="0.15" stroke="%s" stroke-width="16"/>' % (x, OUT))
         s.line("M%d,790 Q%d,768 %d,772" % (x - 56, x - 40, x - 18), 9, "#FFF", 'opacity="0.8"')
     s.line("M506,835 Q512,820 518,835", 16)
+    s.path(BEAK_LO, s.ball(mix(GOLD, RED["dark"], 0.35)))
+    s.path(BEAK_UP, s.ball(GOLD))
     bow_tie(s)
+
+
+def pip_front(bg):
+    s = Svg(1024, 1536, bg)
+    draw_pip_front(s)
     return s
 
 
 def pip_side(bg):
     s = Svg(1024, 1536, bg)
-    s.shadow(530, 1405, 270, 34)
-    s.ell(470, 1366, 88, 38, s.ball(G5))
+    s.shadow(530, 1415, 270, 34)
+    bird_foot(s, 480, 1380, ((40, 20), (52, 34), (-30, 26)))
+    feathers(s, 250, 1215, (-62, -80, -98), 1.15)
+    feathers(s, 505, 590, (-48, -24, 0))
     s.path(EGG, s.ball(PIP_BODY))
     s.add('<ellipse cx="610" cy="1235" rx="110" ry="92" fill="#FFF" opacity="0.6"/>')
     s.shine(400, 700, 60, 30)
-    s.ell(585, 1372, 98, 40, s.ball(G4))
-    s.tube("M500,566 C488,500 548,470 570,512 C584,545 548,566 533,540", 22, G5)
+    bird_foot(s, 590, 1385, ((44, 20), (56, 34), (-30, 26)))
     s.add('<ellipse cx="705" cy="985" rx="32" ry="20" fill="%s" opacity="0.4"/>' % BLUSH)
     eye(s, 668, 845, 46, 78, "neutral", PIP_LIMB, 1, look=(1, 0))
     brow(s, 668, 845 - 78 - 50, 60, "neutral", 1)
     s.line("M612,822 L452,800 Q432,800 432,826", 14)
     s.add('<ellipse cx="672" cy="845" rx="64" ry="96" fill="#FFF" fill-opacity="0.15" stroke="%s" stroke-width="16"/>' % OUT)
     s.line("M640,790 Q650,768 664,770", 9, "#FFF", 'opacity="0.8"')
-    s.line("M705,990 Q745,1012 772,982", 10)
+    s.path("M770,978 Q822,986 852,988 Q812,1012 772,1012 Z", s.ball(mix(GOLD, RED["dark"], 0.35)))
+    s.path("M762,925 Q842,930 884,968 Q832,988 770,986 Z", s.ball(GOLD))
     s.path("M705,1110 L640,1070 Q622,1110 640,1150 Z", s.ball(RED["base"]))
     s.path("M705,1110 L752,1086 Q760,1110 752,1134 Z", s.ball(BLUE["base"]))
     s.add('<ellipse cx="708" cy="1110" rx="18" ry="24" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G3), OUT, SW))
-    arm(s, [(520, 1040), (540, 1150), (575, 1240)], 54, PIP_LIMB, 42)
+    s.path("M470,1000 C590,975 668,1080 640,1240 Q616,1212 598,1248 Q578,1214 556,1242 Q534,1214 516,1236 Q486,1130 470,1000 Z", s.ball(PIP_LIMB))
+    s.line("M520,1060 Q580,1110 590,1190 M500,1100 Q540,1150 548,1200", 5, G4)
     return s
 
 
@@ -746,8 +777,13 @@ def bow_tie(s):
 
 
 def costume_referee(blowing):
-    """Referee shirt for Pip front view; `blowing` puts the whistle in his mouth."""
     s = Svg(1024, 1536)
+    draw_referee(s, blowing)
+    return s
+
+
+def draw_referee(s, blowing):
+    """Referee shirt for Pip front view; `blowing` puts the whistle in his beak."""
     cid = s.uid("egg")
     s.defs[cid] = '<clipPath id="%s"><path d="%s"/></clipPath>' % (cid, EGG)
     s.add('<g clip-path="url(#%s)"><path d="M200,1150 Q512,1105 824,1150 L824,1400 L200,1400 Z" fill="%s"/>' % (cid, s.ball(WHITE)))
@@ -762,20 +798,35 @@ def costume_referee(blowing):
     s.line("M455,1128 L512,1175 L569,1128", 14)
     bow_tie(s)
     if blowing:
-        s.add('<ellipse cx="512" cy="1025" rx="82" ry="62" fill="%s"/>' % PIP_BODY)
+        s.add('<ellipse cx="512" cy="1012" rx="52" ry="30" fill="%s"/>' % PIP_BODY)
         for x in (372, 652):
             s.add('<ellipse cx="%d" cy="990" rx="56" ry="40" fill="%s" opacity="0.55"/>' % (x, BLUSH))
         s.tube("M600,1030 Q640,1120 600,1180", 5, BLUE["base"])
-        s.add('<circle cx="512" cy="1012" r="18" fill="%s"/>' % OUT)
-        s.add('<rect x="520" y="985" width="130" height="52" rx="18" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G3), OUT, SW))
-        s.add('<circle cx="652" cy="1011" r="30" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G3), OUT, SW))
-        s.add('<circle cx="652" cy="1011" r="10" fill="%s"/>' % OUT)
+        s.add('<rect x="520" y="980" width="130" height="52" rx="18" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G3), OUT, SW))
+        s.add('<circle cx="652" cy="1006" r="30" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G3), OUT, SW))
+        s.add('<circle cx="652" cy="1006" r="10" fill="%s"/>' % OUT)
+        s.path(BEAK_UP, s.ball(GOLD))
     else:
         s.tube("M440,1140 Q470,1240 540,1250", 5, BLUE["base"])
         s.add('<rect x="530" y="1228" width="100" height="44" rx="16" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G3), OUT, SW))
         s.add('<circle cx="632" cy="1250" r="24" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G3), OUT, SW))
-    return s
 
+
+def channel_avatar():
+    """Profile picture for the channel: referee Pip on the split blue/red badge, no text."""
+    s = Svg(1024, 1024)
+    cid = s.uid("avatar")
+    s.defs[cid] = '<clipPath id="%s"><circle cx="512" cy="512" r="500"/></clipPath>' % cid
+    s.add('<g clip-path="url(#%s)">' % cid)
+    s.add('<rect width="512" height="1024" fill="%s"/>' % s.ball(BLUE["base"]))
+    s.add('<rect x="512" width="512" height="1024" fill="%s"/>' % s.ball(RED["base"]))
+    s.add('<rect x="504" width="16" height="1024" fill="#FFF"/>')
+    s.add('<g transform="translate(-128 -580) scale(1.25)">')
+    draw_pip_front(s)
+    draw_referee(s, False)
+    s.add('</g></g>')
+    s.add('<circle cx="512" cy="512" r="500" fill="none" stroke="%s" stroke-width="%d"/>' % (OUT, SW * 2))
+    return s
 
 # ----------------------------------------------------------------------
 
@@ -800,6 +851,7 @@ def build():
     out["6_kostueme/sport_figur_b"] = costume_sport_b()
     out["6_kostueme/pip_schiedsrichter"] = costume_referee(False)
     out["6_kostueme/pip_schiedsrichter_pfeift"] = costume_referee(True)
+    out["7_kanal/vergleichvogel_profilbild"] = channel_avatar()
     for name, fn in PROPS.items():
         for cname, c in (("blau", BLUE), ("rot", RED)):
             s = Svg(1024, 1024)

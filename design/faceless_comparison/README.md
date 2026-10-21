@@ -1,4 +1,4 @@
-# Design-Set „Vergleiche“ (Faceless TikTok)
+# Vergleichvogel: Design-Set (Faceless TikTok)
 
 Konsistentes Asset-Set als Grundlage für Image-to-Video. Alle Dateien werden von `generate.py` erzeugt
 (SVG = verlustfrei skalierbar, PNG = sofort nutzbar). Gesamtübersicht: `uebersicht.png`.
@@ -21,9 +21,9 @@ python generate.py --chrome /pfad/zu/headless_shell   # SVG + PNG neu erzeugen
 
 ## Figuren (feste Merkmale, nie ändern)
 
-- **Pip, Erzähler** (`1_maskottchen`): eiförmiger, weiß-grauer Körper; große runde schwarze Brille (Markenzeichen);
-  eine dunkelgraue Haarlocke oben; Fliege links blau / rechts rot; kurze graue Arme, graue Füße, rosa Wangen.
-  Frontal und seitlich.
+- **Pip, Erzähler und Schiedsrichter** (`1_maskottchen`): eiförmiger, weiß-grauer Vogel; große runde schwarze Brille (Markenzeichen);
+  drei dunkelgraue Schopffedern; gelber Schnabel; Fliege links blau / rechts rot; graue Flügel, gelbe Vogelfüße, rosa Wangen.
+  Frontal und seitlich (dort mit Schwanzfedern). Im Video trägt er das Schiedsrichter-Hemd aus `6_kostueme`.
 - **Figur A, blau** (`2_figuren/figur_a_*`): groß und schlank, kapselförmiger Körper; dunkelblaue Tolle nach rechts;
   weißer Kragen und dunkelblaue Krawatte; lange dünne Arme und Beine; graue Schuhe. Typ: Angeber.
 - **Figur B, rot** (`2_figuren/figur_b_*`): klein und kugelrund; dunkelrote Kappe mit Schirm nach rechts und weißem Knopf;
@@ -40,6 +40,7 @@ python generate.py --chrome /pfad/zu/headless_shell   # SVG + PNG neu erzeugen
 | `2_figuren` | A und B, je 4 Emotionen | 2048×3072 |
 | `3_hintergruende` | geteilte Bühne, Studio mit Podest, Skyline am Tag, Wohnzimmer, weißes Raster; ohne Personen, Mitte frei | 1080×1920 (9:16) |
 | `4_requisiten` | Geldbündel, Waage, Pokal, Weltkugel, Stoppuhr, Haus, Auto, Lupe; je `_blau` und `_rot`, freigestellt | 2048×2048 |
+| `7_kanal` | Profilbild „Vergleichvogel“ (ohne Text) | 2048×2048 |
 | `5_elemente` | VS, Pfeile hoch/runter, Haken, Kreuz (je blau/rot), leere Balkendiagramme (A vs. B, Ranking 5) | 2048×2048 |
 
 ## Prompts für den echten 3D-Look
@@ -55,7 +56,7 @@ Referenzbild nutzen (img2img mit Denoise 0.45–0.6, IP-Adapter oder ControlNet 
 
 | Asset | Zusatz-Prompt |
 |---|---|
-| Pip | `cute egg-shaped white-grey mascot, oversized round black glasses, big friendly eyes, single dark grey hair curl on top, small bow tie half blue half red, short grey arms, full body, neutral standing pose, plain light grey background` |
+| Pip | `cute egg-shaped white-grey bird mascot, oversized round black glasses, big friendly eyes, small yellow beak, three dark grey crest feathers, grey wings, yellow bird feet, small bow tie half blue half red, full body, neutral standing pose, plain light grey background` |
 | Figur A | `tall slim capsule-shaped blue character, dark blue swoosh quiff to the right, white collar, dark blue tie, long thin arms and legs, grey shoes, full body, {emotion}, plain light grey background` |
 | Figur B | `short round ball-shaped red character, dark red cap with brim to the right and white button, wide-set big eyes, short chunky arms and legs, grey shoes, full body, {emotion}, plain light grey background` |
 | Emotionen | stolz: `smug proud smile, half-closed eyes, hands on hips` · überrascht: `wide eyes, open O mouth, arms raised` · genervt: `annoyed half-lidded eyes, angled brows, flat mouth, stiff arms` |
