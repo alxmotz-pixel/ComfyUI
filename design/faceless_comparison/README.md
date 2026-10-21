@@ -76,4 +76,6 @@ Pro Thema eine JSON-Datei in `themen/`: `a` (blaue Seite), `b` (rote Seite), `fo
 `kostuem_a`/`kostuem_b` (optional, Overlays aus `6_kostueme`, z. B. `reich_figur_a`, `arm_figur_b`),
 `plus` und `minus` (je 3 Punkte `{"text", "bilder": [Requisiten/Elemente], "emotion"}`), `frage` (Schlussfrage).
 Ablauf: Intro mit VS und Zoom auf die Fokus-Seite (1,8 s), 3× besser im Vollbild (3,6 s), 3× schlechter (3,6 s), Frage (1 s).
-Bei Marken (z. B. Nike vs. Adidas) nur die Namen als Text verwenden, keine Logos.
+Am Ende pfeift Pip als Schiedsrichter (`6_kostueme/pip_schiedsrichter*`, Pfiff als Ton im Video) und stellt die `frage`.
+Bei Marken nur die Namen als Text und eigene Anspielungen statt Logos verwenden (Flügel für Nike, Bergspitze für Adidas
+in `sport_figur_*`), keine Nachbauten von Swoosh oder drei Streifen.

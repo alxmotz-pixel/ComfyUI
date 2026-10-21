@@ -206,9 +206,7 @@ def pip_front(bg):
         s.add('<circle cx="%d" cy="845" r="96" fill="#FFF" fill-opacity="0.15" stroke="%s" stroke-width="16"/>' % (x, OUT))
         s.line("M%d,790 Q%d,768 %d,772" % (x - 56, x - 40, x - 18), 9, "#FFF", 'opacity="0.8"')
     s.line("M506,835 Q512,820 518,835", 16)
-    s.path("M512,1110 L432,1068 Q410,1110 432,1152 Z", s.ball(BLUE["base"]))
-    s.path("M512,1110 L592,1068 Q614,1110 592,1152 Z", s.ball(RED["base"]))
-    s.add('<circle cx="512" cy="1110" r="24" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G3), OUT, SW))
+    bow_tie(s)
     return s
 
 
@@ -702,6 +700,19 @@ def costume_poor_b():
     return s
 
 
+# Brand-inspired emblems (deliberately not the real marks)
+WING = "M-1,0.3 C-0.6,-0.6 0.4,-0.7 1,-0.5 C0.7,-0.3 0.6,-0.2 0.7,-0.1 C0.4,-0.05 0.3,0.05 0.4,0.15 C0.1,0.2 0,0.3 0.05,0.4 C-0.4,0.45 -0.8,0.45 -1,0.3 Z"
+PEAK = "M-1,0.5 L-0.15,-0.6 Q0,-0.75 0.15,-0.6 L1,0.5 Q1.05,0.6 0.9,0.6 L-0.9,0.6 Q-1.05,0.6 -1,0.5 Z"
+
+
+def emblem(s, d, x, y, size, fill=WHITE, accent=None):
+    s.add('<path d="%s" fill="%s" stroke="%s" stroke-width="%d" stroke-linejoin="round" vector-effect="non-scaling-stroke" transform="translate(%g %g) scale(%g)"/>'
+          % (d, fill, OUT, SW * 0.75, x, y, size))
+    if accent:
+        s.add('<path d="M-0.42,-0.1 L-0.2,0.05 L0,-0.12 L0.2,0.05 L0.42,-0.1" fill="none" stroke="%s" stroke-width="%d" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" transform="translate(%g %g) scale(%g)"/>'
+              % (accent, SW * 0.75, x, y, size))
+
+
 def sneakers(s, c, shoes):
     for x, y, rx, ry in shoes:
         s.ell(x, y + 8, rx + 10, ry + 6, s.ball(c["base"]))
@@ -713,6 +724,7 @@ def costume_sport_a():
     s = Svg(1024, 1536)
     s.path("M369,440 Q512,420 655,440 L658,486 Q512,466 366,486 Z", s.ball(WHITE))
     s.add('<path d="M368,463 Q512,443 656,463" fill="none" stroke="%s" stroke-width="10"/>' % BLUE["base"])
+    emblem(s, PEAK, 512, 1080, 62, WHITE, BLUE["base"])
     sneakers(s, BLUE, ((452, 1404, 54, 26), (572, 1404, 54, 26)))
     return s
 
@@ -722,7 +734,46 @@ def costume_sport_b():
     s.tube("M300,1170 Q512,1290 724,1170", 6, G1)
     s.add('<rect x="482" y="1230" width="60" height="40" rx="14" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G3), OUT, SW))
     s.add('<circle cx="530" cy="1250" r="8" fill="%s"/>' % OUT)
+    emblem(s, WING, 515, 832, 72)
     sneakers(s, RED, ((428, 1406, 66, 28), (596, 1406, 66, 28)))
+    return s
+
+
+def bow_tie(s):
+    s.path("M512,1110 L432,1068 Q410,1110 432,1152 Z", s.ball(BLUE["base"]))
+    s.path("M512,1110 L592,1068 Q614,1110 592,1152 Z", s.ball(RED["base"]))
+    s.add('<circle cx="512" cy="1110" r="24" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G3), OUT, SW))
+
+
+def costume_referee(blowing):
+    """Referee shirt for Pip front view; `blowing` puts the whistle in his mouth."""
+    s = Svg(1024, 1536)
+    cid = s.uid("egg")
+    s.defs[cid] = '<clipPath id="%s"><path d="%s"/></clipPath>' % (cid, EGG)
+    s.add('<g clip-path="url(#%s)"><path d="M200,1150 Q512,1105 824,1150 L824,1400 L200,1400 Z" fill="%s"/>' % (cid, s.ball(WHITE)))
+    sid = s.uid("shirt")
+    s.defs[sid] = '<clipPath id="%s"><path d="M200,1150 Q512,1105 824,1150 L824,1400 L200,1400 Z"/></clipPath>' % sid
+    s.add('<g clip-path="url(#%s)">' % sid)
+    for x in range(228, 824, 64):
+        s.add('<rect x="%d" y="1100" width="30" height="300" fill="%s"/>' % (x, OUT))
+    s.add('</g>')
+    s.add('<path d="M200,1150 Q512,1105 824,1150" fill="none" stroke="%s" stroke-width="%d"/></g>' % (OUT, SW))
+    s.add('<path d="%s" fill="none" stroke="%s" stroke-width="%d"/>' % (EGG, OUT, SW))
+    s.line("M455,1128 L512,1175 L569,1128", 14)
+    bow_tie(s)
+    if blowing:
+        s.add('<ellipse cx="512" cy="1025" rx="82" ry="62" fill="%s"/>' % PIP_BODY)
+        for x in (372, 652):
+            s.add('<ellipse cx="%d" cy="990" rx="56" ry="40" fill="%s" opacity="0.55"/>' % (x, BLUSH))
+        s.tube("M600,1030 Q640,1120 600,1180", 5, BLUE["base"])
+        s.add('<circle cx="512" cy="1012" r="18" fill="%s"/>' % OUT)
+        s.add('<rect x="520" y="985" width="130" height="52" rx="18" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G3), OUT, SW))
+        s.add('<circle cx="652" cy="1011" r="30" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G3), OUT, SW))
+        s.add('<circle cx="652" cy="1011" r="10" fill="%s"/>' % OUT)
+    else:
+        s.tube("M440,1140 Q470,1240 540,1250", 5, BLUE["base"])
+        s.add('<rect x="530" y="1228" width="100" height="44" rx="16" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G3), OUT, SW))
+        s.add('<circle cx="632" cy="1250" r="24" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G3), OUT, SW))
     return s
 
 
@@ -747,6 +798,8 @@ def build():
     out["6_kostueme/arm_figur_b"] = costume_poor_b()
     out["6_kostueme/sport_figur_a"] = costume_sport_a()
     out["6_kostueme/sport_figur_b"] = costume_sport_b()
+    out["6_kostueme/pip_schiedsrichter"] = costume_referee(False)
+    out["6_kostueme/pip_schiedsrichter_pfeift"] = costume_referee(True)
     for name, fn in PROPS.items():
         for cname, c in (("blau", BLUE), ("rot", RED)):
             s = Svg(1024, 1024)
