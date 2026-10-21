@@ -20,7 +20,7 @@ SW = 8                   # outline width (px at 1024/1080 canvas width)
 WHITE = "#FFFFFF"
 G1, G2, G3, G4, G5 = "#F2F3F5", "#E6E8EC", "#D9DCE1", "#9AA1AB", "#4A505A"
 BLUE = {"base": "#2F7BFF", "light": "#8DB8FF", "dark": "#1A4FBF", "deep": "#173E8C"}
-ORANGE = {"base": "#FF8A1F", "light": "#FFC27A", "dark": "#C95A00", "deep": "#9A4300"}
+RED = {"base": "#EE3340", "light": "#FF8F96", "dark": "#B41E2A", "deep": "#7C121B"}
 BG = G2                  # flat neutral background behind characters
 BLUSH = "#FF9E7A"
 
@@ -206,7 +206,7 @@ def pip_front(bg):
         s.line("M%d,790 Q%d,768 %d,772" % (x - 56, x - 40, x - 18), 9, "#FFF", 'opacity="0.8"')
     s.line("M506,835 Q512,820 518,835", 16)
     s.path("M512,1110 L432,1068 Q410,1110 432,1152 Z", s.ball(BLUE["base"]))
-    s.path("M512,1110 L592,1068 Q614,1110 592,1152 Z", s.ball(ORANGE["base"]))
+    s.path("M512,1110 L592,1068 Q614,1110 592,1152 Z", s.ball(RED["base"]))
     s.add('<circle cx="512" cy="1110" r="24" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G3), OUT, SW))
     return s
 
@@ -227,7 +227,7 @@ def pip_side(bg):
     s.add('<ellipse cx="672" cy="845" rx="64" ry="96" fill="#FFF" fill-opacity="0.15" stroke="%s" stroke-width="16"/>' % OUT)
     s.line("M640,790 Q650,768 664,770", 9, "#FFF", 'opacity="0.8"')
     s.line("M705,990 Q745,1012 772,982", 10)
-    s.path("M705,1110 L640,1070 Q622,1110 640,1150 Z", s.ball(ORANGE["base"]))
+    s.path("M705,1110 L640,1070 Q622,1110 640,1150 Z", s.ball(RED["base"]))
     s.path("M705,1110 L752,1086 Q760,1110 752,1134 Z", s.ball(BLUE["base"]))
     s.add('<ellipse cx="708" cy="1110" rx="18" ry="24" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G3), OUT, SW))
     arm(s, [(520, 1040), (540, 1150), (575, 1240)], 54, PIP_LIMB, 42)
@@ -273,8 +273,8 @@ def figure_a(expr, bg):
 
 
 def figure_b(expr, bg):
-    """Side B: short, wide, loud. Orange, backwards-tilted cap."""
-    c = ORANGE
+    """Side B: short, wide, loud. Red, backwards-tilted cap."""
+    c = RED
     s = Svg(1024, 1536, bg)
     s.shadow(512, 1418, 300, 36)
     for x in (440, 584):
@@ -301,8 +301,8 @@ def figure_b(expr, bg):
 def bg_split():
     s = Svg(1080, 1920)
     s.add('<rect width="540" height="1920" fill="%s"/>' % s.vgrad(mix(BLUE["base"], WHITE, 0.25), BLUE["deep"]))
-    s.add('<rect x="540" width="540" height="1920" fill="%s"/>' % s.vgrad(mix(ORANGE["base"], WHITE, 0.25), ORANGE["deep"]))
-    for x, c in ((270, BLUE), (810, ORANGE)):
+    s.add('<rect x="540" width="540" height="1920" fill="%s"/>' % s.vgrad(mix(RED["base"], WHITE, 0.25), RED["deep"]))
+    for x, c in ((270, BLUE), (810, RED)):
         s.add('<polygon points="%d,0 %d,0 %d,1560 %d,1560" fill="#FFF" opacity="0.10" filter="url(#glow)"/>' % (x - 70, x + 70, x + 240, x - 240))
         s.add('<rect x="%d" y="1500" width="540" height="420" fill="%s"/>' % (x - 270, s.vgrad(c["dark"], c["deep"])))
         s.add('<ellipse cx="%d" cy="1610" rx="220" ry="46" fill="#FFF" opacity="0.22" filter="url(#soft)"/>' % x)
@@ -321,7 +321,7 @@ def bg_podium():
     s.line("M0,1520 L1080,1520", SW)
     s.add('<polygon points="470,0 610,0 900,1640 180,1640" fill="#FFF" opacity="0.35" filter="url(#glow)"/>')
     s.shadow(540, 1712, 470, 40, 0.18)
-    for x0, x1, top, trim in ((130, 400, 1410, BLUE["base"]), (680, 950, 1480, ORANGE["base"]), (400, 680, 1290, G5)):
+    for x0, x1, top, trim in ((130, 400, 1410, BLUE["base"]), (680, 950, 1480, RED["base"]), (400, 680, 1290, G5)):
         s.path("M%d,%d L%d,%d L%d,1710 L%d,1710 Z" % (x0, top, x1, top, x1, x0), s.vgrad(WHITE, G3))
         s.path("M%d,%d L%d,%d L%d,%d L%d,%d Z" % (x0 + 16, top - 44, x1 - 16, top - 44, x1, top, x0, top), s.vgrad(WHITE, G1))
         s.add('<rect x="%d" y="%d" width="%d" height="26" fill="%s" stroke="%s" stroke-width="%d"/>' % (x0, top, x1 - x0, s.ball(trim), OUT, SW))
@@ -332,7 +332,7 @@ def bg_city():
     rnd = random.Random(7)
     s = Svg(1080, 1920)
     s.add('<rect width="1080" height="1920" fill="%s"/>' % s.vgrad("#7DB6FF", "#EAF4FF"))
-    s.add('<circle cx="860" cy="330" r="190" fill="%s" opacity="0.45" filter="url(#glow)"/>' % ORANGE["light"])
+    s.add('<circle cx="860" cy="330" r="190" fill="%s" opacity="0.45" filter="url(#glow)"/>' % "#FFE3B0")
     s.add('<circle cx="860" cy="330" r="110" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball("#FFD9A0"), OUT, SW))
     for cx, cy, k in ((220, 360, 1.0), (640, 560, 0.75), (140, 820, 0.6)):
         s.path("M%g,%g a%g,%g 0 0 1 %g,%g a%g,%g 0 0 1 %g,%g a%g,%g 0 0 1 %g,%g Z"
@@ -352,7 +352,7 @@ def bg_city():
         s.path("M%d,1690 L%d,%d L%d,%d L%d,1690 Z" % (x, x, top, x + w, top, x + w), s.vgrad(rnd.choice((G3, G4, "#C3C8D0")), G4))
         for wy in range(top + 40, 1640, 70):
             for wx in range(x + 24, x + w - 40, 52):
-                col = rnd.choice((G1, G1, G1, BLUE["light"], ORANGE["light"]))
+                col = rnd.choice((G1, G1, G1, BLUE["light"], RED["light"]))
                 s.add('<rect x="%d" y="%d" width="28" height="38" rx="6" fill="%s"/>' % (wx, wy, col))
         x += w + rnd.randint(20, 50)
     s.add('<rect y="1680" width="1080" height="70" fill="%s" stroke="%s" stroke-width="%d"/>' % (G3, OUT, SW))
@@ -375,7 +375,7 @@ def bg_living():
     s.add('<rect x="60" y="850" width="370" height="30" rx="10" fill="%s" stroke="%s" stroke-width="%d"/>' % (WHITE, OUT, SW))
     # abstract framed picture, right wall
     s.add('<rect x="690" y="460" width="300" height="240" rx="12" fill="%s" stroke="%s" stroke-width="%d"/>' % (WHITE, OUT, SW))
-    s.add('<circle cx="790" cy="560" r="55" fill="%s"/>' % ORANGE["light"])
+    s.add('<circle cx="790" cy="560" r="55" fill="%s"/>' % RED["light"])
     s.add('<path d="M720,670 L840,600 L960,670 Z" fill="%s"/>' % BLUE["light"])
     # sofa on the left, lamp on the right, rug in the middle; centre stays clear
     s.shadow(180, 1580, 300, 30)
@@ -385,8 +385,8 @@ def bg_living():
     s.shadow(930, 1590, 110, 20)
     s.line("M930,1580 L930,1050", 14)
     s.ell(930, 1585, 80, 20, s.ball(G5))
-    s.path("M850,1060 L880,900 L980,900 L1010,1060 Z", s.ball(ORANGE["base"]))
-    s.add('<ellipse cx="930" cy="1180" rx="140" ry="160" fill="%s" opacity="0.25" filter="url(#glow)"/>' % ORANGE["light"])
+    s.path("M850,1060 L880,900 L980,900 L1010,1060 Z", s.ball(RED["base"]))
+    s.add('<ellipse cx="930" cy="1180" rx="140" ry="160" fill="%s" opacity="0.25" filter="url(#glow)"/>' % RED["light"])
     s.ell(560, 1730, 380, 100, s.vgrad(G3, G4))
     s.add('<ellipse cx="560" cy="1730" rx="300" ry="70" fill="none" stroke="#FFF" stroke-width="10" opacity="0.6"/>')
     return s
@@ -530,7 +530,7 @@ def el_vs():
     s.defs[cid] = '<clipPath id="%s"><circle cx="512" cy="512" r="370"/></clipPath>' % cid
     s.add('<g clip-path="url(#%s)">' % cid)
     s.add('<rect x="0" y="0" width="1024" height="1024" fill="%s"/>' % s.ball(BLUE["base"]))
-    s.add('<polygon points="600,100 470,470 570,500 430,940 1024,940 1024,100" fill="%s"/>' % s.ball(ORANGE["base"]))
+    s.add('<polygon points="600,100 470,470 570,500 430,940 1024,940 1024,100" fill="%s"/>' % s.ball(RED["base"]))
     s.line("M600,100 L470,470 L570,500 L430,940", 20, "#FFF")
     s.add('</g>')
     s.add('<circle cx="512" cy="512" r="370" fill="none" stroke="%s" stroke-width="%d"/>' % (OUT, SW))
@@ -597,24 +597,24 @@ def build():
         out["1_maskottchen/pip_seitlich%s" % suffix] = pip_side(bg)
         for expr, name in (("neutral", "neutral"), ("proud", "stolz"), ("surprised", "ueberrascht"), ("annoyed", "genervt")):
             out["2_figuren/figur_a_blau_%s%s" % (name, suffix)] = figure_a(expr, bg)
-            out["2_figuren/figur_b_orange_%s%s" % (name, suffix)] = figure_b(expr, bg)
+            out["2_figuren/figur_b_rot_%s%s" % (name, suffix)] = figure_b(expr, bg)
     out["3_hintergruende/bg1_geteilte_buehne"] = bg_split()
     out["3_hintergruende/bg2_studio_podest"] = bg_podium()
     out["3_hintergruende/bg3_stadt_skyline_tag"] = bg_city()
     out["3_hintergruende/bg4_wohnzimmer"] = bg_living()
     out["3_hintergruende/bg5_raster_weiss"] = bg_grid()
     for name, fn in PROPS.items():
-        for cname, c in (("blau", BLUE), ("orange", ORANGE)):
+        for cname, c in (("blau", BLUE), ("rot", RED)):
             s = Svg(1024, 1024)
             fn(s, c)
             out["4_requisiten/%s_%s" % (name, cname)] = s
     out["5_elemente/vs"] = el_vs()
-    for cname, c in (("blau", BLUE), ("orange", ORANGE)):
+    for cname, c in (("blau", BLUE), ("rot", RED)):
         out["5_elemente/pfeil_hoch_%s" % cname] = el_arrow(c, False)
         out["5_elemente/pfeil_runter_%s" % cname] = el_arrow(c, True)
         out["5_elemente/haken_%s" % cname] = el_check(c)
         out["5_elemente/kreuz_%s" % cname] = el_cross(c)
-    out["5_elemente/balken_a_vs_b"] = el_chart([(420, BLUE["base"]), (420, ORANGE["base"])])
+    out["5_elemente/balken_a_vs_b"] = el_chart([(420, BLUE["base"]), (420, RED["base"])])
     out["5_elemente/balken_ranking_5"] = el_chart([(200, G4), (290, G4), (380, G4), (460, G4), (520, G4)])
     return out
 
