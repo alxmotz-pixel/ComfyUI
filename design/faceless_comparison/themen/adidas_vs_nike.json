@@ -1,18 +1,32 @@
 {
-  "a": "ADIDAS",
-  "b": "NIKE",
-  "fokus": "b",
-  "kostuem_a": "sport_figur_a",
-  "kostuem_b": "sport_figur_b",
-  "plus": [
-    {"text": "Größte Sportmarke der Welt", "bilder": ["pokal_rot", "weltkugel_rot"]},
-    {"text": "Air-Dämpfung seit 1979", "bilder": ["sneaker_rot", "pfeil_hoch_rot"]},
-    {"text": "Air Jordan seit 1984", "bilder": ["basketball_rot"]}
-  ],
-  "minus": [
-    {"text": "Hype-Modelle sofort ausverkauft", "bilder": ["stoppuhr_rot", "sneaker_rot"], "emotion": "ueberrascht"},
-    {"text": "Hohe Resell-Preise", "bilder": ["geldbuendel_rot", "pfeil_hoch_rot"]},
-    {"text": "Sweatshop-Kritik in den 90ern", "bilder": ["waage_rot"]}
-  ],
+  "a": {
+    "name": "ADIDAS",
+    "kostuem": "sport_figur_a",
+    "plus": [
+      {"text": "Kult-Klassiker wie Superstar", "info": "Der Superstar kam 1969 raus", "bilder": ["sneaker_blau", "pokal_blau"]},
+      {"text": "Deutsche Marke seit 1949", "info": "Gegründet von Adi Dassler in Herzogenaurach", "bilder": ["weltkugel_blau"]},
+      {"text": "Boost-Dämpfung", "info": "Seit 2013 in Laufschuhen", "bilder": ["sneaker_blau", "pfeil_hoch_blau"]}
+    ],
+    "minus": [
+      {"text": "Kleiner als Nike", "info": "Weniger Umsatz als der große Rivale", "bilder": ["waage_blau", "pfeil_runter_blau"]},
+      {"text": "Teures Yeezy-Aus", "info": "Partnerschaft 2022 beendet", "bilder": ["geldbuendel_blau", "pfeil_runter_blau"]},
+      {"text": "Samba-Hype", "info": "Beliebte Größen oft schnell ausverkauft", "bilder": ["stoppuhr_blau"], "emotion": "ueberrascht"}
+    ]
+  },
+  "b": {
+    "name": "NIKE",
+    "kostuem": "sport_figur_b",
+    "plus": [
+      {"text": "Größte Sportmarke der Welt", "info": "Gemessen am Umsatz die Nummer 1", "bilder": ["pokal_rot", "weltkugel_rot"]},
+      {"text": "Air-Dämpfung seit 1979", "info": "Luftpolster in der Sohle", "bilder": ["sneaker_rot", "pfeil_hoch_rot"]},
+      {"text": "Air Jordan seit 1985", "info": "Der Schuh von Michael Jordan", "bilder": ["basketball_rot"]}
+    ],
+    "minus": [
+      {"text": "Hype-Modelle sofort weg", "info": "Limitierte Drops sind in Minuten ausverkauft", "bilder": ["stoppuhr_rot", "sneaker_rot"], "emotion": "ueberrascht"},
+      {"text": "Hohe Resell-Preise", "info": "Manche Paare kosten ein Vielfaches", "bilder": ["geldbuendel_rot", "pfeil_hoch_rot"]},
+      {"text": "Sweatshop-Kritik", "info": "Kritik an Zulieferer-Fabriken in den 90ern", "bilder": ["waage_rot"]}
+    ]
+  },
+  "hook": "Wer gewinnt?",
   "frage": "Was würdest du eher tragen: Nike oder Adidas?"
 }

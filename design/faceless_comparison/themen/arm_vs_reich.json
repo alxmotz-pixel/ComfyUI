@@ -1,18 +1,32 @@
 {
-  "a": "REICH",
-  "b": "ARM",
-  "fokus": "a",
-  "kostuem_a": "reich_figur_a",
-  "kostuem_b": "arm_figur_b",
-  "plus": [
-    {"text": "Keine Geldsorgen", "bilder": ["geldbuendel_blau"]},
-    {"text": "Reisen, wann du willst", "bilder": ["weltkugel_blau", "auto_blau"]},
-    {"text": "Beste Ärzte", "bilder": ["arztkoffer_blau"]}
-  ],
-  "minus": [
-    {"text": "Falsche Freunde", "bilder": ["maske_blau"]},
-    {"text": "Ständig Stress", "bilder": ["stoppuhr_blau"], "emotion": "ueberrascht"},
-    {"text": "Angst alles zu verlieren", "bilder": ["haus_blau", "pfeil_runter_blau"]}
-  ],
-  "frage": "Was wärst du lieber?"
+  "a": {
+    "name": "REICH",
+    "kostuem": "reich_figur_a",
+    "plus": [
+      {"text": "Keine Geldsorgen", "info": "Rechnungen? Kein Problem", "bilder": ["geldbuendel_blau"]},
+      {"text": "Reisen, wann du willst", "info": "Heute Strand, morgen Berge", "bilder": ["weltkugel_blau", "auto_blau"]},
+      {"text": "Beste Ärzte", "info": "Schnelle Termine bei Spezialisten", "bilder": ["arztkoffer_blau"]}
+    ],
+    "minus": [
+      {"text": "Falsche Freunde", "info": "Mag man dich oder dein Geld?", "bilder": ["maske_blau"]},
+      {"text": "Ständig Stress", "info": "Firma, Termine, Verantwortung", "bilder": ["stoppuhr_blau"], "emotion": "ueberrascht"},
+      {"text": "Angst alles zu verlieren", "info": "Je mehr du hast, desto mehr kannst du verlieren", "bilder": ["haus_blau", "pfeil_runter_blau"]}
+    ]
+  },
+  "b": {
+    "name": "ARM",
+    "kostuem": "arm_figur_b",
+    "plus": [
+      {"text": "Kleine Dinge machen glücklich", "info": "Ein Eis fühlt sich wie ein Sieg an", "bilder": ["pokal_rot"]},
+      {"text": "Profi im Sparen", "info": "Jedes Angebot wird gefunden", "bilder": ["lupe_rot", "geldbuendel_rot"]},
+      {"text": "Echter Zusammenhalt", "info": "Man hilft sich gegenseitig", "bilder": ["haus_rot"]}
+    ],
+    "minus": [
+      {"text": "Ständige Geldsorgen", "info": "Am Ende des Geldes ist noch Monat übrig", "bilder": ["geldbuendel_rot", "pfeil_runter_rot"], "emotion": "ueberrascht"},
+      {"text": "Kaum Urlaub", "info": "Die Welt sieht man meist nur am Handy", "bilder": ["weltkugel_rot"]},
+      {"text": "Lange Wartezeiten", "info": "Beim Arzt und bei Behörden", "bilder": ["arztkoffer_rot", "stoppuhr_rot"]}
+    ]
+  },
+  "hook": "Was ist wirklich besser?",
+  "frage": "Was wärst du lieber: arm oder reich?"
 }
