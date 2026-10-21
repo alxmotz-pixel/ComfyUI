@@ -558,9 +558,32 @@ def prop_mask(s, c):
     s.shine(380, 280, 60, 26)
 
 
+def prop_sneaker(s, c):
+    s.shadow(520, 790, 360, 34)
+    s.path("M170,700 Q170,640 230,640 L820,640 Q880,640 880,700 Q880,740 830,740 L220,740 Q170,740 170,700 Z", s.ball(WHITE))
+    s.line("M190,712 L860,712", 6, c["base"])
+    s.path("M220,640 C210,520 300,440 390,430 L520,420 Q610,420 650,500 L800,555 Q870,580 870,640 Z", s.ball(c["base"]))
+    s.path("M700,520 L800,555 Q870,580 870,640 L720,640 Q700,580 700,520 Z", s.ball(WHITE))
+    s.ell(410, 450, 90, 26, OUT, False)
+    for i in range(4):
+        x = 470 + i * 48
+        s.line("M%d,%d L%d,%d" % (x, 450 + i * 22, x + 40, 470 + i * 22), 12, "#FFF")
+    s.path("M220,640 C215,560 240,500 280,470 L300,640 Z", s.ball(c["dark"]))
+    s.shine(330, 520, 50, 22)
+
+
+def prop_basketball(s, c):
+    s.shadow(512, 860, 260, 30)
+    s.add('<circle cx="512" cy="500" r="300" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(c["base"]), OUT, SW))
+    s.line("M512,200 L512,800 M212,500 L812,500", SW)
+    s.line("M300,288 Q420,500 300,712 M724,288 Q604,500 724,712", SW)
+    s.shine(400, 360, 70, 32)
+
+
 PROPS = {"geldbuendel": prop_money, "waage": prop_scale, "pokal": prop_trophy, "weltkugel": prop_globe,
          "stoppuhr": prop_stopwatch, "haus": prop_house, "auto": prop_car, "lupe": prop_magnifier,
-         "arztkoffer": prop_doctor_bag, "maske": prop_mask}
+         "arztkoffer": prop_doctor_bag, "maske": prop_mask,
+         "sneaker": prop_sneaker, "basketball": prop_basketball}
 
 
 # 5. Comparison elements --------------------------------------------------
@@ -679,6 +702,30 @@ def costume_poor_b():
     return s
 
 
+def sneakers(s, c, shoes):
+    for x, y, rx, ry in shoes:
+        s.ell(x, y + 8, rx + 10, ry + 6, s.ball(c["base"]))
+        s.ell(x, y - 2, rx + 4, ry + 2, s.ball(WHITE))
+        s.line("M%g,%g L%g,%g M%g,%g L%g,%g" % (x - 14, y - 14, x + 4, y - 8, x - 4, y - 20, x + 14, y - 14), 5)
+
+
+def costume_sport_a():
+    s = Svg(1024, 1536)
+    s.path("M369,440 Q512,420 655,440 L658,486 Q512,466 366,486 Z", s.ball(WHITE))
+    s.add('<path d="M368,463 Q512,443 656,463" fill="none" stroke="%s" stroke-width="10"/>' % BLUE["base"])
+    sneakers(s, BLUE, ((452, 1404, 54, 26), (572, 1404, 54, 26)))
+    return s
+
+
+def costume_sport_b():
+    s = Svg(1024, 1536)
+    s.tube("M300,1170 Q512,1290 724,1170", 6, G1)
+    s.add('<rect x="482" y="1230" width="60" height="40" rx="14" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G3), OUT, SW))
+    s.add('<circle cx="530" cy="1250" r="8" fill="%s"/>' % OUT)
+    sneakers(s, RED, ((428, 1406, 66, 28), (596, 1406, 66, 28)))
+    return s
+
+
 # ----------------------------------------------------------------------
 
 def build():
@@ -695,9 +742,11 @@ def build():
     out["3_hintergruende/bg4_wohnzimmer"] = bg_living()
     out["3_hintergruende/bg5_raster_weiss"] = bg_grid()
     out["3_hintergruende/bg6_solo_blau"] = bg_solo(BLUE)
-    out["3_hintergruende/bg7_solo_rot"] = bg_solo(RED)
+    out["3_hintergruende/bg6_solo_rot"] = bg_solo(RED)
     out["6_kostueme/reich_figur_a"] = costume_rich_a()
     out["6_kostueme/arm_figur_b"] = costume_poor_b()
+    out["6_kostueme/sport_figur_a"] = costume_sport_a()
+    out["6_kostueme/sport_figur_b"] = costume_sport_b()
     for name, fn in PROPS.items():
         for cname, c in (("blau", BLUE), ("rot", RED)):
             s = Svg(1024, 1024)
