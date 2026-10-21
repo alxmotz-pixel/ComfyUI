@@ -23,6 +23,7 @@ BLUE = {"base": "#2F7BFF", "light": "#8DB8FF", "dark": "#1A4FBF", "deep": "#173E
 RED = {"base": "#EE3340", "light": "#FF8F96", "dark": "#B41E2A", "deep": "#7C121B"}
 BG = G2                  # flat neutral background behind characters
 BLUSH = "#FF9E7A"
+GOLD = "#FFC83D"          # only for the "rich" costume
 
 
 def _rgb(c):
@@ -404,6 +405,21 @@ def bg_grid():
     return s
 
 
+def bg_solo(c):
+    """Full-screen stage for one side (close-up when that side is talked about)."""
+    s = Svg(1080, 1920)
+    s.add('<rect width="1080" height="1920" fill="%s"/>' % s.vgrad(mix(c["base"], WHITE, 0.25), c["deep"]))
+    for i in range(12):
+        a = math.radians(i * 30 + 15)
+        s.add('<polygon points="540,760 %g,%g %g,%g" fill="#FFF" opacity="0.06"/>'
+              % (540 + 2400 * math.cos(a), 760 + 2400 * math.sin(a), 540 + 2400 * math.cos(a + 0.22), 760 + 2400 * math.sin(a + 0.22)))
+    s.add('<circle cx="540" cy="760" r="420" fill="#FFF" opacity="0.18" filter="url(#glow)"/>')
+    s.add('<rect y="1560" width="1080" height="360" fill="%s"/>' % s.vgrad(c["dark"], c["deep"]))
+    s.line("M0,1560 L1080,1560", SW)
+    s.add('<ellipse cx="540" cy="1720" rx="420" ry="70" fill="#FFF" opacity="0.2" filter="url(#soft)"/>')
+    return s
+
+
 # 4. Props 1024x1024, transparent, per colour variant --------------------
 
 def prop_money(s, c):
@@ -517,8 +533,34 @@ def prop_magnifier(s, c):
     s.line("M330,380 A140,140 0 0 1 420,300", 22, "#FFF", 'opacity="0.85"')
 
 
+def prop_doctor_bag(s, c):
+    s.shadow(512, 840, 300, 34)
+    s.tube("M400,400 L400,330 Q400,290 440,290 L584,290 Q624,290 624,330 L624,400", 30, G5)
+    s.add('<rect x="232" y="390" width="560" height="430" rx="60" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(c["base"]), OUT, SW))
+    s.line("M240,480 Q512,520 784,480", SW)
+    s.add('<rect x="482" y="500" width="60" height="220" rx="14" fill="#FFF" stroke="%s" stroke-width="%d"/>' % (OUT, SW))
+    s.add('<rect x="402" y="580" width="220" height="60" rx="14" fill="#FFF" stroke="%s" stroke-width="%d"/>' % (OUT, SW))
+    s.add('<rect x="488" y="584" width="48" height="52" fill="#FFF"/>')
+    s.shine(320, 450, 50, 22)
+
+
+def prop_mask(s, c):
+    """Smiling mask on a stick: fake friends."""
+    s.shadow(560, 880, 220, 28)
+    s.tube("M600,640 L760,880", 34, G5)
+    s.path("M512,180 C700,180 780,320 780,470 C780,640 660,730 512,730 C364,730 244,640 244,470 C244,320 324,180 512,180 Z", s.ball(c["light"]))
+    for x, side in ((420, -1), (604, 1)):
+        s.path("M%d,430 Q%d,380 %d,430 Q%d,470 %d,430 Z" % (x - 60, x, x + 60, x, x - 60), OUT)
+        s.line("M%d,%d L%d,%d" % (x - 60 * side, 330, x + 50 * side, 370), 14)
+    s.path("M380,560 Q512,680 644,560 Q512,620 380,560 Z", OUT)
+    s.add('<ellipse cx="360" cy="520" rx="40" ry="22" fill="%s" opacity="0.5"/>' % BLUSH)
+    s.add('<ellipse cx="664" cy="520" rx="40" ry="22" fill="%s" opacity="0.5"/>' % BLUSH)
+    s.shine(380, 280, 60, 26)
+
+
 PROPS = {"geldbuendel": prop_money, "waage": prop_scale, "pokal": prop_trophy, "weltkugel": prop_globe,
-         "stoppuhr": prop_stopwatch, "haus": prop_house, "auto": prop_car, "lupe": prop_magnifier}
+         "stoppuhr": prop_stopwatch, "haus": prop_house, "auto": prop_car, "lupe": prop_magnifier,
+         "arztkoffer": prop_doctor_bag, "maske": prop_mask}
 
 
 # 5. Comparison elements --------------------------------------------------
@@ -588,6 +630,55 @@ def el_chart(bars):
     return s
 
 
+# 6. Theme costumes: overlays on the 1024x1536 figure canvas -------------
+
+def sparkle(s, x, y, r):
+    s.add('<path d="M%g,%g Q%g,%g %g,%g Q%g,%g %g,%g Q%g,%g %g,%g Q%g,%g %g,%g Z" fill="#FFF" stroke="%s" stroke-width="4"/>'
+          % (x, y - r, x, y, x + r, y, x, y, x, y + r, x, y, x - r, y, x, y, x, y - r, OUT))
+
+
+def costume_rich_a():
+    s = Svg(1024, 1536)
+    s.add('<g transform="rotate(14 600 300)">')
+    s.path("M520,330 L530,230 L572,280 L600,210 L628,280 L670,230 L680,330 Z", s.ball(GOLD))
+    s.add('<rect x="516" y="320" width="168" height="30" rx="10" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(GOLD), OUT, SW))
+    for x in (556, 600, 644):
+        s.add('<circle cx="%d" cy="335" r="9" fill="%s"/>' % (x, BLUE["light"]))
+    s.add('</g>')
+    s.add('<circle cx="569" cy="600" r="58" fill="#FFF" fill-opacity="0.12" stroke="%s" stroke-width="16"/>' % OUT)
+    s.add('<circle cx="569" cy="600" r="58" fill="none" stroke="%s" stroke-width="8"/>' % GOLD)
+    s.line("M612,640 Q640,720 620,800", 4, GOLD)
+    s.tube("M410,836 Q512,980 614,836", 12, GOLD)
+    s.add('<circle cx="512" cy="950" r="42" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(GOLD), OUT, SW))
+    s.add('<circle cx="512" cy="950" r="20" fill="none" stroke="#FFF" stroke-width="6" opacity="0.8"/>')
+    sparkle(s, 720, 230, 26)
+    sparkle(s, 470, 260, 16)
+    sparkle(s, 580, 990, 18)
+    return s
+
+
+def patch(s, x, y, w, h, rot, fill):
+    s.add('<g transform="rotate(%g %g %g)">' % (rot, x, y))
+    s.add('<rect x="%g" y="%g" width="%g" height="%g" rx="8" fill="%s" stroke="%s" stroke-width="%d"/>' % (x - w / 2, y - h / 2, w, h, s.ball(fill), OUT, SW))
+    s.add('<rect x="%g" y="%g" width="%g" height="%g" rx="4" fill="none" stroke="%s" stroke-width="4" stroke-dasharray="10 8"/>' % (x - w / 2 + 10, y - h / 2 + 10, w - 20, h - 20, OUT))
+    s.add('</g>')
+
+
+def costume_poor_b():
+    s = Svg(1024, 1536)
+    patch(s, 600, 830, 70, 52, 12, G3)
+    patch(s, 395, 1225, 96, 84, -10, mix(RED["light"], G3, 0.5))
+    patch(s, 668, 1185, 70, 62, 8, G4)
+    s.add('<g transform="rotate(-28 690 1060)"><rect x="640" y="1043" width="100" height="34" rx="17" fill="#F4D9B8" stroke="%s" stroke-width="6"/>'
+          '<rect x="676" y="1047" width="28" height="26" fill="#E8C49A"/></g>' % OUT)
+    for x, y, r in ((300, 1060, 26), (720, 1280, 32), (520, 1290, 22)):
+        s.add('<ellipse cx="%d" cy="%d" rx="%d" ry="%g" fill="%s" opacity="0.35"/>' % (x, y, r, r * 0.6, G5))
+    s.line("M560,1335 L580,1305 L600,1335 L620,1305", 6)
+    s.add('<path d="M720,770 Q740,700 770,740" fill="none" stroke="%s" stroke-width="5" opacity="0.6"/>' % G5)
+    s.add('<path d="M760,800 Q790,730 815,780" fill="none" stroke="%s" stroke-width="5" opacity="0.6"/>' % G5)
+    return s
+
+
 # ----------------------------------------------------------------------
 
 def build():
@@ -603,6 +694,10 @@ def build():
     out["3_hintergruende/bg3_stadt_skyline_tag"] = bg_city()
     out["3_hintergruende/bg4_wohnzimmer"] = bg_living()
     out["3_hintergruende/bg5_raster_weiss"] = bg_grid()
+    out["3_hintergruende/bg6_solo_blau"] = bg_solo(BLUE)
+    out["3_hintergruende/bg7_solo_rot"] = bg_solo(RED)
+    out["6_kostueme/reich_figur_a"] = costume_rich_a()
+    out["6_kostueme/arm_figur_b"] = costume_poor_b()
     for name, fn in PROPS.items():
         for cname, c in (("blau", BLUE), ("rot", RED)):
             s = Svg(1024, 1024)

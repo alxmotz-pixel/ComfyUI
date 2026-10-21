@@ -1,7 +1,18 @@
 {
-  "a": "ARM",
-  "b": "REICH",
-  "plus": ["Keine Geldsorgen", "Reisen, wann du willst", "Beste Ärzte"],
-  "minus": ["Falsche Freunde", "Ständig Stress", "Angst alles zu verlieren"],
+  "a": "REICH",
+  "b": "ARM",
+  "fokus": "a",
+  "kostuem_a": "reich_figur_a",
+  "kostuem_b": "arm_figur_b",
+  "plus": [
+    {"text": "Keine Geldsorgen", "bilder": ["geldbuendel_blau"]},
+    {"text": "Reisen, wann du willst", "bilder": ["weltkugel_blau", "auto_blau"]},
+    {"text": "Beste Ärzte", "bilder": ["arztkoffer_blau"]}
+  ],
+  "minus": [
+    {"text": "Falsche Freunde", "bilder": ["maske_blau"]},
+    {"text": "Ständig Stress", "bilder": ["stoppuhr_blau"], "emotion": "ueberrascht"},
+    {"text": "Angst alles zu verlieren", "bilder": ["haus_blau", "pfeil_runter_blau"]}
+  ],
   "frage": "Was wärst du lieber?"
 }

@@ -3,13 +3,15 @@
     python generate.py --chrome ...                 # PNGs first
     python demo_clip.py themen/arm_vs_reich.json
 
-Theme: "a" = blue side, "b" = red side, "plus" = 3 points where B is better,
-"minus" = 3 points where B is worse, "frage" = closing question.
+Theme keys: "a" = blue side, "b" = red side, "fokus" = side the points are about ("a"/"b"),
+"kostuem_a"/"kostuem_b" = optional overlays from png/6_kostueme,
+"plus"/"minus" = 3 points each {"text", "bilder": [prop/element names], "emotion"?}, "frage" = closing question.
 """
 
 import json
 import math
 import os
+import random
 import subprocess
 import sys
 
@@ -21,6 +23,7 @@ FONT = "/usr/share/fonts/opentype/inter/Inter-ExtraBold.otf"
 W, H, FPS = 1080, 1920, 30
 OUT = (43, 47, 54)
 BLUE, RED = (47, 123, 255), (238, 51, 64)
+SIDES = {"a": ("figur_a_blau", BLUE, "blau", 270), "b": ("figur_b_rot", RED, "rot", 810)}
 
 _cache = {}
 
@@ -28,7 +31,11 @@ _cache = {}
 def img(name, height):
     key = (name, height)
     if key not in _cache:
-        im = Image.open(os.path.join(PNG, name + ".png")).convert("RGBA")
+        path = os.path.join(PNG, name + ".png")
+        if not os.path.exists(path):
+            path = next(os.path.join(PNG, d, name + ".png") for d in ("4_requisiten", "5_elemente")
+                        if os.path.exists(os.path.join(PNG, d, name + ".png")))
+        im = Image.open(path).convert("RGBA")
         _cache[key] = im.resize((round(im.width * height / im.height), height), Image.LANCZOS)
     return _cache[key]
 
@@ -45,10 +52,17 @@ def fit(text, max_w, size):
     return font(size)
 
 
+def clamp(t):
+    return min(max(t, 0.0), 1.0)
+
+
+def ease(t):
+    return 1 - (1 - clamp(t)) ** 3
+
+
 def ease_out_back(t):
-    t = min(max(t, 0.0), 1.0)
-    c = 1.70158
-    return 1 + (c + 1) * (t - 1) ** 3 + c * (t - 1) ** 2
+    t = clamp(t)
+    return 1 + 2.70158 * (t - 1) ** 3 + 1.70158 * (t - 1) ** 2
 
 
 def put(frame, im, cx, cy, s=1.0, sy=None):
@@ -65,15 +79,6 @@ def pop(frame, im, cx, cy, t):
     put(frame, im, cx, cy, ease_out_back(t / 0.35))
 
 
-def character(frame, name, cx, bottom, t, phase=0.0, height=620, react=None):
-    """Idle bounce anchored at the feet; `react` = time of an expression change (stretch)."""
-    sy = 1 + 0.015 * math.sin((t + phase) * 2 * math.pi * 1.2)
-    if react is not None and 0 <= t - react < 0.3:
-        sy += 0.08 * math.sin((t - react) / 0.3 * math.pi)
-    im = img(name + "_freigestellt", height)
-    put(frame, im, cx, bottom - im.height * sy / 2, 2 - sy, sy)
-
-
 def pill(text, color, size=64, pad=34):
     f = font(size)
     w = round(f.getlength(text)) + 2 * pad
@@ -86,71 +91,116 @@ def pill(text, color, size=64, pad=34):
 
 
 def card(text, icon, color):
-    w, h = 900, 150
+    w, h = 940, 170
     im = Image.new("RGBA", (w + 16, h + 16))
     d = ImageDraw.Draw(im)
-    d.rounded_rectangle([8, 8, w + 8, h + 8], radius=36, fill="white", outline=OUT, width=8)
+    d.rounded_rectangle([8, 8, w + 8, h + 8], radius=40, fill="white", outline=OUT, width=8)
     d.rounded_rectangle([8, 8, 40, h + 8], radius=16, fill=color)
     d.line([(40, 12), (40, h + 4)], fill=OUT, width=6)
-    ic = img(icon, 130)
+    ic = img(icon, 140)
     im.alpha_composite(ic, (60, round((h + 16 - ic.height) / 2)))
-    d.text((210, h / 2 + 8), text, font=fit(text, w - 230, 60), fill=OUT, anchor="lm")
+    d.text((220, h / 2 + 8), text, font=fit(text, w - 240, 68), fill=OUT, anchor="lm")
     return im
 
 
 class Clip:
-    def __init__(self, theme):
-        self.th = theme
-        self.label_a = pill(theme["a"], BLUE)
-        self.label_b = pill(theme["b"], RED)
+    def __init__(self, th):
+        self.th = th
+        self.focus = th["fokus"]
+        self.costume = {k: th.get("kostuem_" + k) for k in SIDES}
+        self.label = {k: pill(th[k], SIDES[k][1]) for k in SIDES}
         self.vs = img("5_elemente/vs", 420)
-        self.head_plus = pill("3× BESSER: " + theme["b"], RED, 58)
-        self.head_minus = pill("3× SCHLECHTER: " + theme["b"], RED, 58)
-        self.plus = [card(p, "5_elemente/haken_rot", RED) for p in theme["plus"]]
-        self.minus = [card(p, "5_elemente/kreuz_rot", RED) for p in theme["minus"]]
-        q = theme["frage"]
+        fig, color, cname, _ = SIDES[self.focus]
+        name = th[self.focus]
+        self.plus = [(pill("%s · BESSER %d/3" % (name, i + 1), color, 50), card(p["text"], "haken_" + cname, color), p) for i, p in enumerate(th["plus"])]
+        self.minus = [(pill("%s · SCHLECHTER %d/3" % (name, i + 1), RED if color == BLUE else BLUE, 50), card(p["text"], "kreuz_rot", RED), p) for i, p in enumerate(th["minus"])]
+        q = th["frage"]
         self.question = pill(q, OUT, 66) if font(66).getlength(q) < 900 else pill(q, OUT, 48)
+        rnd = random.Random(3)
+        self.confetti = [(rnd.uniform(0, 2 * math.pi), rnd.uniform(500, 1100), rnd.choice((color, (255, 255, 255), (255, 200, 61))), rnd.randint(10, 20)) for _ in range(40)]
 
-    def stage(self):
-        return img("3_hintergruende/bg1_geteilte_buehne", H).copy()
+    def character(self, frame, side, emotion, cx, bottom, t, height, react=None):
+        """Idle bounce anchored at the feet; `react` = time of an expression change (stretch)."""
+        sy = 1 + 0.015 * math.sin((t + (0.4 if side == "b" else 0)) * 2 * math.pi * 1.2)
+        if react is not None and 0 <= t - react < 0.3:
+            sy += 0.08 * math.sin((t - react) / 0.3 * math.pi)
+        for name in ("2_figuren/%s_%s_freigestellt" % (SIDES[side][0], emotion), self.costume[side] and "6_kostueme/" + self.costume[side]):
+            if name:
+                im = img(name, height)
+                put(frame, im, cx, bottom - im.height * sy / 2, 2 - sy, sy)
 
-    def intro(self, t):
-        f = self.stage()
+    def pip(self, frame, cx, bottom, t, height):
+        sy = 1 + 0.015 * math.sin((t + 0.2) * 2 * math.pi * 1.2)
+        im = img("1_maskottchen/pip_frontal_freigestellt", height)
+        put(frame, im, cx, bottom - im.height * sy / 2, 2 - sy, sy)
+
+    def split(self, t, emotion="neutral"):
+        f = img("3_hintergruende/bg1_geteilte_buehne", H).copy()
         xa = -400 + 670 * ease_out_back(t / 0.7)
         xb = W + 400 - 670 * ease_out_back((t - 0.15) / 0.7)
-        character(f, "2_figuren/figur_a_blau_neutral", xa, 1700, t, 0.0, 900)
-        character(f, "2_figuren/figur_b_rot_neutral", xb, 1700, t, 0.4, 900)
-        pop(f, self.vs, W / 2, 470, t - 0.5)
-        pop(f, self.label_a, 270, 1800, t - 0.8)
-        pop(f, self.label_b, 810, 1800, t - 0.95)
+        self.character(f, "a", emotion, xa, 1700, t, 900)
+        self.character(f, "b", emotion, xb, 1700, t, 900)
         return f
 
-    def points(self, t, head, cards, b_wins):
-        f = self.stage()
-        pop(f, head, W / 2, 230, t)
-        for i, c in enumerate(cards):
-            pop(f, c, W / 2, 470 + 200 * i, t - 0.45 - 0.9 * i)
-        a = "figur_a_blau_" + ("genervt" if b_wins else "stolz")
-        b = "figur_b_rot_" + ("stolz" if b_wins else "genervt")
-        character(f, "2_figuren/" + a, 270, 1720, t, 0.0, react=0.1)
-        character(f, "2_figuren/" + b, 810, 1720, t, 0.4, react=0.1)
-        put(f, self.label_a, 270, 1810, 0.8)
-        put(f, self.label_b, 810, 1810, 0.8)
+    def intro(self, t):
+        f = self.split(t)
+        pop(f, self.vs, W / 2, 470, t - 0.45)
+        pop(f, self.label["a"], 270, 1800, t - 0.7)
+        pop(f, self.label["b"], 810, 1800, t - 0.85)
+        # whip zoom onto the focus side
+        z = ease((t - 1.45) / 0.35)
+        if z > 0:
+            bw, bh = W - 540 * z, H - 960 * z
+            x0 = (SIDES[self.focus][3] - 270) * z
+            y0 = 760 * z
+            f = f.crop((round(x0), round(y0), round(x0 + bw), round(y0 + bh))).resize((W, H), Image.BILINEAR)
         return f
+
+    def point(self, t, item, positive):
+        head, crd, p = item
+        side = self.focus
+        f = img("3_hintergruende/bg6_solo_%s" % SIDES[side][2], H).copy()
+        if not positive:
+            f.alpha_composite(Image.new("RGBA", (W, H), (20, 22, 30, 70)))
+        emotion = p.get("emotion", "stolz" if positive else "genervt")
+        self.character(f, side, emotion, 300, 1830, t, 1050, react=0.0)
+        pics = p["bilder"]
+        size = 660 if len(pics) == 1 else 440
+        shake = 14 * math.sin(t * 60) * (1 - clamp((t - 0.35) / 0.4)) if not positive else 0
+        for i, name in enumerate(pics):
+            gx = 720 + (i - (len(pics) - 1) / 2) * 330 + shake
+            gy = 900 + 18 * math.sin(t * 5 + i)
+            pop(f, img(name, size), gx, gy, t - 0.15 - 0.12 * i)
+        if positive and t > 0.2:
+            d = ImageDraw.Draw(f)
+            k = ease((t - 0.2) / 0.7)
+            for a, dist, col, r in self.confetti:
+                x = 730 + math.cos(a) * dist * k
+                y = 900 + math.sin(a) * dist * k * 0.8 + 400 * k * k
+                if k < 1:
+                    d.ellipse([x - r, y - r, x + r, y + r], fill=col, outline=OUT, width=3)
+        pop(f, head, W / 2, 110, t)
+        pop(f, crd, W / 2, 300, t - 0.05)
+        return f
+
+    def points(self, items, positive):
+        dur = 1.2
+
+        def scene(t):
+            i = min(int(t / dur), 2)
+            return self.point(t - i * dur, items[i], positive)
+        return scene
 
     def outro(self, t):
-        f = self.stage()
-        character(f, "2_figuren/figur_a_blau_ueberrascht", 200, 1720, t, 0.0, 560)
-        character(f, "2_figuren/figur_b_rot_ueberrascht", 880, 1720, t, 0.4, 560)
-        character(f, "1_maskottchen/pip_frontal", W / 2, 1760, t, 0.2, 760)
+        f = img("3_hintergruende/bg1_geteilte_buehne", H).copy()
+        self.character(f, "a", "ueberrascht", 210, 1720, t, 620)
+        self.character(f, "b", "ueberrascht", 870, 1720, t, 620)
+        self.pip(f, W / 2, 1760, t, 760)
         pop(f, self.question, W / 2, 520, t - 0.1)
         return f
 
     def scenes(self):
-        return [(self.intro, 2.0),
-                (lambda t: self.points(t, self.head_plus, self.plus, True), 3.5),
-                (lambda t: self.points(t, self.head_minus, self.minus, False), 3.5),
-                (self.outro, 1.0)]
+        return [(self.intro, 1.8), (self.points(self.plus, True), 3.6), (self.points(self.minus, False), 3.6), (self.outro, 1.0)]
 
 
 def main():
@@ -169,10 +219,10 @@ def main():
             t = n / FPS
             frame = scene(t).convert("RGB")
             flash = 0.0
-            if si > 0 and t < 0.15:
-                flash = 1 - t / 0.15
-            if si < len(scenes) - 1 and t > dur - 0.1:
-                flash = (t - (dur - 0.1)) / 0.1
+            if si > 0 and t < 0.12:
+                flash = 1 - t / 0.12
+            if si < len(scenes) - 1 and t > dur - 0.08:
+                flash = (t - (dur - 0.08)) / 0.08
             if flash > 0:
                 frame = Image.blend(frame, white, min(flash, 1.0))
             ff.stdin.write(frame.tobytes())
