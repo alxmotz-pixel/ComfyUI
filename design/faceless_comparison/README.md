@@ -72,6 +72,8 @@ damit Proportionen und Farben stabil bleiben.
 python demo_clip.py themen/arm_vs_reich.json   # -> demo/arm_vs_reich.mp4
 ```
 
-Pro Thema eine JSON-Datei in `themen/`: `a` (blaue Seite), `b` (rote Seite), `plus` (3 Punkte, in denen B besser ist),
-`minus` (3 Punkte, in denen B schlechter ist), `frage` (Schlussfrage). Ablauf: Intro mit VS (2 s), 3× besser (3,5 s),
-3× schlechter (3,5 s), Frage (1 s). Bei Marken (z. B. Nike vs. Adidas) nur die Namen als Text verwenden, keine Logos.
+Pro Thema eine JSON-Datei in `themen/`: `a` (blaue Seite), `b` (rote Seite), `fokus` (`a` oder `b`, die Seite, um die es geht),
+`kostuem_a`/`kostuem_b` (optional, Overlays aus `6_kostueme`, z. B. `reich_figur_a`, `arm_figur_b`),
+`plus` und `minus` (je 3 Punkte `{"text", "bilder": [Requisiten/Elemente], "emotion"}`), `frage` (Schlussfrage).
+Ablauf: Intro mit VS und Zoom auf die Fokus-Seite (1,8 s), 3× besser im Vollbild (3,6 s), 3× schlechter (3,6 s), Frage (1 s).
+Bei Marken (z. B. Nike vs. Adidas) nur die Namen als Text verwenden, keine Logos.
