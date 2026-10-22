@@ -178,8 +178,7 @@
     5
   ],
   "ende": {
-    "sieger": "jubelnd_traurig",
-    "verlierer": "gluecklich"
+    "pokal_klau": true
   },
   "frage": "Reich, aber gestresst – oder arm, aber glücklich?"
 }

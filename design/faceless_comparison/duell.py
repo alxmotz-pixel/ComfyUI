@@ -7,7 +7,8 @@ Theme keys: "a" = blue side, "b" = red side, each {"name", "kostuem"?}; "hook" =
 "runden" = rounds {"titel", "a": side, "b": side, "sieger": "a" | "b" | null} where a side is
 {"text", "bilder": [prop/element names], "zahl"?: {"label", "wert", "vor"?, "nach"?}, "messer"?: {"label", "wert" 0-100}};
 "frage" = closing question; optional "ende" = {"sieger": pose, "verlierer": pose} for the final scene
-(default jubelnd/traurig; a happy loser sways instead of leaning over); optional "kurz" = round indices for the short cut (--kurz). Every scene length is a
+(default jubelnd/traurig; a happy loser sways instead of leaning over) or {"pokal_klau": true}: the cup goes to the
+happy loser, the winner walks over, slaps the back of his head, takes the cup and gets a yellow card; optional "kurz" = round indices for the short cut (--kurz). Every scene length is a
 multiple of one beat at 120 BPM, and the last second fades back into the first frame so the video loops.
 Referee Pip whistles every round, shows the loser a yellow card and calls the final score. A side may set "emotion".
 """
@@ -43,7 +44,15 @@ def short_whistle():
     return whistle()[int(SR * 0.2):int(SR * 0.45)]
 
 
-SOUNDS = dict(SOUNDS, ding=ding(), pfiff=short_whistle())
+def slap():
+    n = int(SR * 0.18)
+    tt = np.arange(n) / SR
+    crack = np.random.default_rng(4).standard_normal(n) * np.exp(-tt * 45)
+    thump = np.sin(2 * np.pi * 110 * tt) * np.exp(-tt * 20)
+    return 0.7 * crack + 0.5 * thump
+
+
+SOUNDS = dict(SOUNDS, ding=ding(), pfiff=short_whistle(), klatsch=slap())
 
 
 def outlined(text, size, fill="white"):
@@ -292,9 +301,102 @@ class Duel:
         pop(f, self.question, W / 2, 560, t - self.T["frage"])
         return f
 
+    # pokal_klau beats (s): cup lands on the loser, walk over, slap, walk back, cheer, question
+    KLAU = {"pokal": 0.8, "hin": 2.0, "klaps": 3.0, "zurueck": 3.5, "jubel": 4.5, "frage": 5.0, "laenge": 8.0}
+
+    def finale_klau(self, t):
+        f = self.stage()
+        K = self.KLAU
+        sa, sb = self.score[-1]
+        win = "a" if sa > sb else "b"
+        lose = "b" if win == "a" else "a"
+        home, other = {"a": 250, "b": 830}[win], {"a": 250, "b": 830}[lose]
+        bottom, height = 1730, 760
+        toward = 1 if other > home else -1
+        reach = other - toward * 230
+
+        def walk(t0, t1, x0, x1):
+            k = clamp((t - t0) / (t1 - t0))
+            step = abs(math.sin(math.pi * (t - t0) / 0.25)) if 0 < k < 1 else 0.0
+            return x0 + (x1 - x0) * ease(k), 30 * step, (6 * toward if int((t - t0) / 0.25) % 2 else -6 * toward) if 0 < k < 1 else 0.0
+
+        # winner: sad, walks over, slaps, walks back with the cup, then cheers
+        if t < K["hin"]:
+            wx, wy, wa, pose = home, 0.0, 0.0, "traurig" if t >= 0.6 else "neutral"
+        elif t < K["klaps"]:
+            (wx, wy, wa), pose = walk(K["hin"], K["klaps"] - 0.1, home, reach), "genervt"
+        elif t < K["zurueck"]:
+            swing = math.sin(clamp((t - K["klaps"]) / 0.3) * math.pi)
+            wx, wy, wa, pose = reach + toward * 40 * swing, 0.0, -toward * 22 * swing, "ueberrascht"
+        elif t < K["jubel"]:
+            (wx, wy, wa), pose = walk(K["zurueck"], K["jubel"] - 0.1, reach, home), "stolz"
+        else:
+            hop = abs(math.sin(math.pi * (t - K["jubel"]) / 0.5))
+            wx, wy, wa, pose = home, 160 * hop, 0.0, "jubelnd"
+
+        # loser: happy with the cup until the slap, then shocked, then sad
+        hit = K["klaps"] + 0.15
+        # referee stands further back so the birds walk in front of him
+        self.pip(f, W / 2, 1570, t, 440, blowing=(0.2 <= t < 0.9) or (hit + 0.1 <= t < hit + 0.5),
+                 card=-toward if hit + 0.5 <= t < K["frage"] + 1.5 else None)
+        if t < hit:
+            sway = 7 * math.sin(2 * math.pi * (t - 0.6)) * ease((t - 0.6) / 0.3) if t >= 0.6 else 0.0
+            self.character(f, lose, "gluecklich" if t >= 0.6 else "neutral", other, bottom, t, height, react=0.6, angle=sway)
+        else:
+            k = clamp((t - hit) / 0.25)
+            jolt = math.sin(k * math.pi)
+            pose_l = "ueberrascht" if t < K["jubel"] else "traurig"
+            lean = ease((t - K["jubel"]) / 0.8) if t >= K["jubel"] else 0.0
+            self.character(f, lose, pose_l, other + toward * 30 * jolt + toward * 40 * lean, bottom + 20 * lean, t, height,
+                           react=hit, angle=toward * (-18 * jolt) + (-18 if lose == "b" else 18) * lean, sy=1 - 0.1 * jolt)
+            if t < hit + 1.2:
+                head_y = bottom - height * (1 - self.TOP[lose]) + 40
+                d = ImageDraw.Draw(f)
+                for i in range(4):
+                    a = 2 * math.pi * (i / 4 + (t - hit) * 1.5)
+                    sx, sy = other + 120 * math.cos(a), head_y + 30 * math.sin(a)
+                    r = 22
+                    pts = [(sx + (r if j % 2 == 0 else r * 0.45) * math.cos(math.pi / 5 * j - math.pi / 2),
+                            sy + (r if j % 2 == 0 else r * 0.45) * math.sin(math.pi / 5 * j - math.pi / 2)) for j in range(10)]
+                    d.polygon(pts, fill=YELLOW, outline=OUT, width=4)
+
+        self.character(f, win, pose, wx, bottom - wy, t, height, angle=wa, sy=1.0 if wy else None)
+
+        # the cup: above the loser, flies to the winner on the slap, then rides on the winner
+        cup = img("4_requisiten/pokal_%s" % SIDES[win][2], 240)
+        top_l = bottom - height * (1 - self.TOP[lose]) - 110
+        top_w = bottom - wy - height * (1 - self.TOP[win]) - 110
+        if t < hit:
+            pop(f, cup, other, top_l + 10 * math.sin(t * 4), t - K["pokal"])
+        else:
+            k = ease(clamp((t - hit) / 0.45))
+            cx = other + (wx - other) * k
+            cy = top_l + (top_w - top_l) * k - 260 * math.sin(k * math.pi)
+            put(f, cup.rotate(-360 * k * toward, resample=Image.BICUBIC), cx, cy)
+        if K["pokal"] < t < K["hin"] + 0.5:
+            d = ImageDraw.Draw(f)
+            k = ease((t - K["pokal"]) / 1.4)
+            for a, dist, col, r in self.confetti:
+                if k < 1:
+                    x = other + math.cos(a) * dist * k
+                    y = top_l + math.sin(a) * dist * k * 0.8 + 700 * k * k
+                    d.ellipse([x - r, y - r, x + r, y + r], fill=col, outline=OUT, width=3)
+        put(f, self.board(sa, sb, 1.0), W / 2, 260, 1 + 0.12 * math.sin(clamp((t - 0.3) / 0.3) * math.pi))
+        pop(f, self.question, W / 2, 560, t - K["frage"])
+        return f
+
+    def final_scene(self):
+        if self.th.get("ende", {}).get("pokal_klau"):
+            K = self.KLAU
+            sounds = [(0.2, "whistle"), (K["pokal"], "ding"), (K["hin"], "whoosh"), (K["klaps"] + 0.15, "klatsch"),
+                      (K["klaps"] + 0.25, "pfiff"), (K["klaps"] + 0.2, "whoosh"), (K["jubel"], "ding"), (K["frage"], "pop")]
+            return self.finale_klau, K["laenge"], sounds
+        return self.finale, self.T["finale"], [(0.2, "whistle"), (0.7, "pop"), (1.3, "ding"), (self.T["frage"], "pop")]
+
     def loop(self, t):
         """Fade the last finale frame back into the first intro frame so the end flows into the start."""
-        return Image.blend(self.finale(self.T["finale"]), self.intro(0.0), ease(t / self.T["loop"]))
+        scene, dur, _ = self.final_scene()
+        return Image.blend(scene(dur), self.intro(0.0), ease(t / self.T["loop"]))
 
     def timeline(self):
         T = self.T
@@ -306,7 +408,7 @@ class Duel:
             tl.append((lambda t, i=i: self.wipe(i, t), T["wisch"], [(0.0, "whoosh")]))
             tl.append((lambda t, i=i: self.side(i, "b", t), T["seite"], side_sounds))
             tl.append((lambda t, i=i: self.verdict(i, t), T["urteil"], [(0.3, "pop"), (0.45, "ding" if self.rounds[i]["sieger"] else "pop")]))
-        tl.append((self.finale, T["finale"], [(0.2, "whistle"), (0.7, "pop"), (1.3, "ding"), (T["frage"], "pop")]))
+        tl.append(self.final_scene())
         tl.append((self.loop, T["loop"], [(0.0, "whoosh")]))
         return tl
 
