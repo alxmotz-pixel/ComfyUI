@@ -826,22 +826,23 @@ def sparkle(s, x, y, r):
 
 
 def costume_rich_a():
+    """Rich: tilted crown next to the crest, monocle, gold chain."""
     s = Svg(1024, 1536)
-    s.add('<g transform="rotate(14 600 300)">')
-    s.path("M520,330 L530,230 L572,280 L600,210 L628,280 L670,230 L680,330 Z", s.ball(GOLD))
-    s.add('<rect x="516" y="320" width="168" height="30" rx="10" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(GOLD), OUT, SW))
-    for x in (556, 600, 644):
-        s.add('<circle cx="%d" cy="335" r="9" fill="%s"/>' % (x, BLUE["light"]))
+    s.add('<g transform="rotate(16 610 420)">')
+    s.path("M545,440 L553,350 L588,392 L612,330 L636,392 L671,350 L679,440 Z", s.ball(GOLD))
+    s.add('<rect x="541" y="430" width="142" height="28" rx="10" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(GOLD), OUT, SW))
+    for x in (576, 612, 648):
+        s.add('<circle cx="%d" cy="444" r="8" fill="%s"/>' % (x, BLUE["light"]))
     s.add('</g>')
-    s.add('<circle cx="569" cy="600" r="58" fill="#FFF" fill-opacity="0.12" stroke="%s" stroke-width="16"/>' % OUT)
-    s.add('<circle cx="569" cy="600" r="58" fill="none" stroke="%s" stroke-width="8"/>' % GOLD)
-    s.line("M612,640 Q640,720 620,800", 4, GOLD)
-    s.tube("M410,836 Q512,980 614,836", 12, GOLD)
-    s.add('<circle cx="512" cy="950" r="42" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(GOLD), OUT, SW))
-    s.add('<circle cx="512" cy="950" r="20" fill="none" stroke="#FFF" stroke-width="6" opacity="0.8"/>')
-    sparkle(s, 720, 230, 26)
-    sparkle(s, 470, 260, 16)
-    sparkle(s, 580, 990, 18)
+    s.add('<circle cx="574" cy="620" r="62" fill="#FFF" fill-opacity="0.12" stroke="%s" stroke-width="16"/>' % OUT)
+    s.add('<circle cx="574" cy="620" r="62" fill="none" stroke="%s" stroke-width="8"/>' % GOLD)
+    s.line("M630,650 Q664,720 650,800", 4, GOLD)
+    s.tube("M400,800 Q512,920 624,800", 12, GOLD)
+    s.add('<circle cx="512" cy="895" r="40" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(GOLD), OUT, SW))
+    s.add('<circle cx="512" cy="895" r="18" fill="none" stroke="#FFF" stroke-width="6" opacity="0.8"/>')
+    sparkle(s, 720, 330, 26)
+    sparkle(s, 410, 400, 16)
+    sparkle(s, 575, 940, 18)
     return s
 
 
@@ -853,17 +854,18 @@ def patch(s, x, y, w, h, rot, fill):
 
 
 def costume_poor_b():
+    """Poor: patches, band-aid, dirt, a bent crest feather and flies."""
     s = Svg(1024, 1536)
-    patch(s, 600, 830, 70, 52, 12, G3)
-    patch(s, 395, 1225, 96, 84, -10, mix(RED["light"], G3, 0.5))
-    patch(s, 668, 1185, 70, 62, 8, G4)
-    s.add('<g transform="rotate(-28 690 1060)"><rect x="640" y="1043" width="100" height="34" rx="17" fill="#F4D9B8" stroke="%s" stroke-width="6"/>'
-          '<rect x="676" y="1047" width="28" height="26" fill="#E8C49A"/></g>' % OUT)
-    for x, y, r in ((300, 1060, 26), (720, 1280, 32), (520, 1290, 22)):
+    patch(s, 380, 1270, 96, 84, -10, mix(RED["light"], G3, 0.5))
+    patch(s, 676, 1170, 70, 62, 8, G4)
+    s.add('<g transform="rotate(-28 690 1090)"><rect x="640" y="1073" width="100" height="34" rx="17" fill="#F4D9B8" stroke="%s" stroke-width="6"/>'
+          '<rect x="676" y="1077" width="28" height="26" fill="#E8C49A"/></g>' % OUT)
+    for x, y, r in ((300, 1140, 26), (720, 1300, 32), (560, 1330, 22)):
         s.add('<ellipse cx="%d" cy="%d" rx="%d" ry="%g" fill="%s" opacity="0.35"/>' % (x, y, r, r * 0.6, G5))
-    s.line("M560,1335 L580,1305 L600,1335 L620,1305", 6)
-    s.add('<path d="M720,770 Q740,700 770,740" fill="none" stroke="%s" stroke-width="5" opacity="0.6"/>' % G5)
-    s.add('<path d="M760,800 Q790,730 815,780" fill="none" stroke="%s" stroke-width="5" opacity="0.6"/>' % G5)
+    s.add('<path d="M700,760 Q720,690 750,730" fill="none" stroke="%s" stroke-width="5" opacity="0.6"/>' % G5)
+    s.add('<path d="M740,790 Q770,720 795,770" fill="none" stroke="%s" stroke-width="5" opacity="0.6"/>' % G5)
+    for x, y in ((760, 720), (800, 760)):
+        s.add('<circle cx="%d" cy="%d" r="7" fill="%s"/>' % (x, y, OUT))
     return s
 
 
@@ -889,43 +891,43 @@ def sneakers(s, c, shoes):
 
 def costume_sport_a():
     s = Svg(1024, 1536)
-    s.path("M369,440 Q512,420 655,440 L658,486 Q512,466 366,486 Z", s.ball(WHITE))
-    s.add('<path d="M368,463 Q512,443 656,463" fill="none" stroke="%s" stroke-width="10"/>' % BLUE["base"])
-    emblem(s, PEAK, 512, 1080, 62, WHITE, BLUE["base"])
-    sneakers(s, BLUE, ((452, 1404, 54, 26), (572, 1404, 54, 26)))
+    s.path("M374,466 Q512,446 650,466 L654,508 Q512,488 370,508 Z", s.ball(WHITE))
+    s.add('<path d="M372,487 Q512,467 652,487" fill="none" stroke="%s" stroke-width="10"/>' % BLUE["base"])
+    emblem(s, PEAK, 512, 900, 58, WHITE, BLUE["base"])
+    sneakers(s, BLUE, ((462, 1396, 46, 22), (562, 1396, 46, 22)))
     return s
 
 
 def costume_sport_b():
     s = Svg(1024, 1536)
-    s.tube("M300,1170 Q512,1290 724,1170", 6, G1)
-    s.add('<rect x="482" y="1230" width="60" height="40" rx="14" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G3), OUT, SW))
-    s.add('<circle cx="530" cy="1250" r="8" fill="%s"/>' % OUT)
-    emblem(s, WING, 515, 832, 72)
-    sneakers(s, RED, ((428, 1406, 66, 28), (596, 1406, 66, 28)))
+    s.tube("M320,1150 Q512,1280 704,1150", 6, G1)
+    s.add('<rect x="482" y="1220" width="60" height="40" rx="14" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G3), OUT, SW))
+    s.add('<circle cx="530" cy="1240" r="8" fill="%s"/>' % OUT)
+    emblem(s, WING, 512, 1300, 60)
+    sneakers(s, RED, ((440, 1400, 56, 24), (584, 1400, 56, 24)))
     return s
 
 
 def costume_driver_a():
-    """Automatik: relaxed, sunglasses pushed up on the quiff."""
+    """Automatik: relaxed, sunglasses pushed up on the head."""
     s = Svg(1024, 1536)
-    s.add('<g transform="rotate(-6 512 400)">')
-    for x in (450, 574):
-        s.add('<rect x="%d" y="370" width="104" height="62" rx="28" fill="%s" stroke="%s" stroke-width="%d"/>' % (x - 52, s.ball("#3A3F47"), OUT, SW))
-        s.line("M%d,386 L%d,386" % (x - 30, x - 6), 6, "#FFF", 'opacity="0.6"')
-    s.line("M502,396 Q512,384 522,396", 10)
+    s.add('<g transform="rotate(-6 512 480)">')
+    for x in (455, 569):
+        s.add('<rect x="%d" y="452" width="100" height="58" rx="26" fill="%s" stroke="%s" stroke-width="%d"/>' % (x - 50, s.ball("#3A3F47"), OUT, SW))
+        s.line("M%d,468 L%d,468" % (x - 30, x - 6), 6, "#FFF", 'opacity="0.6"')
+    s.line("M505,478 Q512,466 519,478", 10)
     s.add('</g>')
     return s
 
 
 def costume_racer_b():
-    """Manuell: chequered flag patch on the cap."""
+    """Manuell: chequered flag stuck in next to the crest."""
     s = Svg(1024, 1536)
-    s.line("M470,880 L470,790", 6)
+    s.line("M600,860 L600,720", 8, G5)
     for i in range(3):
         for j in range(4):
-            s.add('<rect x="%d" y="%d" width="22" height="20" fill="%s"/>' % (470 + j * 22, 790 + i * 20, OUT if (i + j) % 2 else "#FFF"))
-    s.add('<rect x="470" y="790" width="88" height="60" fill="none" stroke="%s" stroke-width="5"/>' % OUT)
+            s.add('<rect x="%d" y="%d" width="22" height="20" fill="%s"/>' % (600 + j * 22, 720 + i * 20, OUT if (i + j) % 2 else "#FFF"))
+    s.add('<rect x="600" y="720" width="88" height="60" fill="none" stroke="%s" stroke-width="5"/>' % OUT)
     return s
 
 
