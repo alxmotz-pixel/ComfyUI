@@ -6,7 +6,9 @@
 Theme keys: "a" = blue side, "b" = red side, each {"name", "kostuem"?}; "hook" = opening line;
 "runden" = rounds {"titel", "a": side, "b": side, "sieger": "a" | "b" | null} where a side is
 {"text", "bilder": [prop/element names], "zahl"?: {"label", "wert", "vor"?, "nach"?}, "messer"?: {"label", "wert" 0-100}};
-"frage" = closing question. Referee Pip whistles every round, shows the loser a yellow card and calls the final score.
+"frage" = closing question; optional "kurz" = round indices for the short cut (--kurz). Every scene length is a
+multiple of one beat at 120 BPM, and the last second fades back into the first frame so the video loops.
+Referee Pip whistles every round, shows the loser a yellow card and calls the final score. A side may set "emotion".
 """
 
 import json
@@ -26,8 +28,9 @@ from demo_clip import (BLUE, FPS, H, OUT, RED, SIDES, SOUNDS, SR, W, clamp, ease
                        pop, put, textbox, whistle)
 
 YELLOW = (255, 200, 61)
-SIDE = 3.4
-WIPE = 0.45
+# scene lengths in seconds, all multiples of 0.5 s (one beat at 120 BPM)
+TEMPO = {"lang": {"intro": 3.5, "runde": 1.5, "seite": 3.5, "wisch": 0.5, "urteil": 2.0, "finale": 7.0, "loop": 1.0, "frage": 2.5},
+         "kurz": {"intro": 2.5, "runde": 1.0, "seite": 2.5, "wisch": 0.5, "urteil": 1.5, "finale": 4.0, "loop": 0.5, "frage": 1.5}}
 
 
 def ding():
@@ -88,7 +91,9 @@ def gauge(label, value, color):
     return im
 
 
-def counter(label, value, pre, post):
+def counter(label, value, pre, post, target):
+    step = 100 if target >= 1000 else 10 if target >= 100 else 1
+    value = round(value / step) * step
     w, h = 620, 300
     im = Image.new("RGBA", (w + 16, h + 16))
     d = ImageDraw.Draw(im)
@@ -100,10 +105,11 @@ def counter(label, value, pre, post):
 
 
 class Duel:
-    def __init__(self, th):
+    def __init__(self, th, short):
         self.th = th
+        self.T = TEMPO["kurz" if short else "lang"]
         self.names = (th["a"]["name"], th["b"]["name"])
-        self.rounds = th["runden"]
+        self.rounds = [th["runden"][i] for i in th["kurz"]] if short else th["runden"]
         self.score = [(0, 0)]
         for r in self.rounds:
             sa, sb = self.score[-1]
@@ -113,8 +119,8 @@ class Duel:
         self.question = textbox(th["frage"], 64, 880, tail=True)
         self.vs = img("5_elemente/vs", 460)
         self.labels = {k: pill(th[k]["name"], SIDES[k][1]) for k in SIDES}
-        self.titles = [(pill("RUNDE %d" % (i + 1), OUT, 54), outlined(r["titel"], 150)) for i, r in enumerate(self.rounds)]
         self.texts = [{k: textbox(r[k]["text"], 56, 760) for k in SIDES} for r in self.rounds]
+        self.titles = [(pill("RUNDE %d" % (i + 1), OUT, 54), outlined(r["titel"], 150)) for i, r in enumerate(self.rounds)]
         self.plus = outlined("+1", 150, (255, 200, 61))
         self.draw = pill("UNENTSCHIEDEN", OUT, 60)
         rnd = random.Random(3)
@@ -163,16 +169,14 @@ class Duel:
         return img("3_hintergruende/bg1_geteilte_buehne", H).copy()
 
     def intro(self, t):
+        """Everything is on screen in the very first frame (hook at second 0); only the bounce moves in."""
         f = self.stage()
-        xa = -400 + 670 * ease_out_back((t - 0.1) / 0.6)
-        xb = W + 400 - 670 * ease_out_back((t - 0.2) / 0.6)
-        self.character(f, "a", "neutral", xa, 1700, t, 900)
-        self.character(f, "b", "neutral", xb, 1700, t, 900)
-        s = 3 - 2 * ease(t / 0.3)
-        put(f, self.vs, W / 2, 640, s)
-        pop(f, self.hook, W / 2, 250, t - 0.4)
-        pop(f, self.labels["a"], 270, 1800, t - 0.9)
-        pop(f, self.labels["b"], 810, 1800, t - 1.0)
+        self.character(f, "a", "neutral", 270, 1700, t, 900, react=0.0)
+        self.character(f, "b", "neutral", 810, 1700, t, 900, react=0.1)
+        put(f, self.vs, W / 2, 640, 1 + 0.08 * math.sin(clamp(t / 0.3) * math.pi))
+        put(f, self.hook, W / 2, 250, 1 + 0.05 * math.sin(clamp(t / 0.3) * math.pi))
+        put(f, self.labels["a"], 270, 1800)
+        put(f, self.labels["b"], 810, 1800)
         return f
 
     def round_intro(self, i, t):
@@ -190,7 +194,7 @@ class Duel:
         f = img("3_hintergruende/bg6_solo_%s" % cname, H).copy()
         left = k == "a"
         cx_char, cx_obj = (290, 720) if left else (790, 360)
-        self.character(f, k, "neutral", cx_char, 1840, t, 950, react=0.0)
+        self.character(f, k, r.get("emotion", "neutral"), cx_char, 1840, t, 950, react=0.0)
         pics = r["bilder"]
         size = 520 if len(pics) == 1 else 380
         for j, name in enumerate(pics):
@@ -203,16 +207,16 @@ class Duel:
             pop(f, gauge(m["label"], m["wert"] * p, color), cx_obj, 1320, t - 0.5)
         if "zahl" in r:
             z = r["zahl"]
-            pop(f, counter(z["label"], z["wert"] * p, z.get("vor", ""), z.get("nach", "")), cx_obj, 1320, t - 0.5)
+            pop(f, counter(z["label"], z["wert"] * p, z.get("vor", ""), z.get("nach", ""), z["wert"]), cx_obj, 1320, t - 0.5)
         put(f, self.board(*self.score[i]), W / 2, 90)
         pop(f, self.texts[i][k], W / 2, 330, t - 0.1)
         return f
 
     def wipe(self, i, t):
         """Blue side slides away under a red sweep; no caption."""
-        fa = self.side(i, "a", SIDE)
+        fa = self.side(i, "a", self.T["seite"])
         fb = self.side(i, "b", 0.0)
-        x = ease(t / WIPE) * (W + 700) - 350
+        x = ease(t / self.T["wisch"]) * (W + 700) - 350
         mask = Image.new("L", (W, H))
         ImageDraw.Draw(mask).polygon([(x + 350, 0), (W + 400, 0), (W + 400, H), (x - 350, H)], fill=255)
         f = Image.composite(fb, fa, mask)
@@ -261,26 +265,33 @@ class Duel:
                         x = 540 + math.cos(a) * dist * k
                         y = 820 + math.sin(a) * dist * k * 0.8 + 600 * k * k
                         d.ellipse([x - r, y - r, x + r, y + r], fill=col, outline=OUT, width=3)
-        pop(f, self.question, W / 2, 520, t - 2.6)
+        pop(f, self.question, W / 2, 520, t - self.T["frage"])
         return f
 
+    def loop(self, t):
+        """Fade the last finale frame back into the first intro frame so the end flows into the start."""
+        return Image.blend(self.finale(self.T["finale"]), self.intro(0.0), ease(t / self.T["loop"]))
+
     def timeline(self):
-        tl = [(self.intro, 3.5, [(0.0, "whoosh"), (0.25, "pop"), (0.4, "pop"), (0.9, "pop"), (1.0, "pop")])]
+        T = self.T
+        tl = [(self.intro, T["intro"], [(0.0, "whoosh"), (0.0, "pop")])]
         for i in range(len(self.rounds)):
-            tl.append((lambda t, i=i: self.round_intro(i, t), 1.4, [(0.1, "pfiff"), (0.15, "pop")]))
+            tl.append((lambda t, i=i: self.round_intro(i, t), T["runde"], [(0.1, "pfiff"), (0.15, "pop")]))
             side_sounds = [(0.1, "pop"), (0.3, "pop"), (0.5, "pop")]
-            tl.append((lambda t, i=i: self.side(i, "a", t), SIDE, side_sounds))
-            tl.append((lambda t, i=i: self.wipe(i, t), WIPE, [(0.0, "whoosh")]))
-            tl.append((lambda t, i=i: self.side(i, "b", t), SIDE, side_sounds))
-            tl.append((lambda t, i=i: self.verdict(i, t), 2.1, [(0.3, "pop"), (0.45, "ding" if self.rounds[i]["sieger"] else "pop")]))
-        tl.append((self.finale, 7.0, [(0.2, "whistle"), (0.7, "pop"), (1.3, "ding"), (2.6, "pop")]))
+            tl.append((lambda t, i=i: self.side(i, "a", t), T["seite"], side_sounds))
+            tl.append((lambda t, i=i: self.wipe(i, t), T["wisch"], [(0.0, "whoosh")]))
+            tl.append((lambda t, i=i: self.side(i, "b", t), T["seite"], side_sounds))
+            tl.append((lambda t, i=i: self.verdict(i, t), T["urteil"], [(0.3, "pop"), (0.45, "ding" if self.rounds[i]["sieger"] else "pop")]))
+        tl.append((self.finale, T["finale"], [(0.2, "whistle"), (0.7, "pop"), (1.3, "ding"), (T["frage"], "pop")]))
+        tl.append((self.loop, T["loop"], [(0.0, "whoosh")]))
         return tl
 
 
 def main():
     theme_path = sys.argv[1]
+    short = "--kurz" in sys.argv[2:]
     with open(theme_path, encoding="utf-8") as f:
-        duel = Duel(json.load(f))
+        duel = Duel(json.load(f), short)
     tl = duel.timeline()
     audio = np.zeros(int(SR * (sum(d for _, d, _ in tl) + 1)))
     t0 = 0.0
@@ -298,7 +309,7 @@ def main():
     wav.close()
 
     os.makedirs(os.path.join(os.path.dirname(os.path.abspath(__file__)), "demo"), exist_ok=True)
-    out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "demo", os.path.splitext(os.path.basename(theme_path))[0] + ".mp4")
+    out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "demo", os.path.splitext(os.path.basename(theme_path))[0] + ("_kurz" if short else "") + ".mp4")
     ff = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", "%dx%d" % (W, H),
                            "-r", str(FPS), "-i", "-", "-i", wav.name, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "20",
                            "-c:a", "aac", "-b:a", "160k", "-shortest", "-movflags", "+faststart", out], stdin=subprocess.PIPE)

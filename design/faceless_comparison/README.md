@@ -89,4 +89,7 @@ python duell.py themen/automatik_vs_manuell.json   # -> demo/automatik_vs_manuel
 
 6 Runden: Pip pfeift die Runde an, Seite A im Vollbild, Wisch-Übergang ohne Text, Seite B im Vollbild,
 Urteil mit gelber Karte für den Verlierer und Punktestand. Zum Schluss Endstand, Pokal und `frage`.
-Pro Seite und Runde: `text`, `bilder`, optional `zahl` (zählt hoch) oder `messer` (Tacho 0–100); `sieger` = `a`, `b` oder `null`.
+Pro Seite und Runde: `text`, `bilder`, optional `zahl` (zählt in glatten Schritten hoch) oder `messer` (Tacho 0–100)
+und `emotion`; `sieger` = `a`, `b` oder `null`. Die Hook steht ab dem ersten Bild, alle Szenen sind auf 120 BPM getaktet
+(Vielfache von 0,5 s), und die letzte Sekunde blendet ins erste Bild zurück (Loop).
+`python duell.py themen/arm_vs_reich.json --kurz` rendert eine ~30-s-Fassung mit den Runden aus `kurz`.

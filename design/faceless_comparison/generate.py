@@ -742,13 +742,46 @@ def prop_charger(s, c):
     s.shine(440, 340, 26, 14)
 
 
+def prop_bed(s, c):
+    s.shadow(512, 830, 360, 30)
+    s.add('<rect x="172" y="420" width="60" height="400" rx="20" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G5), OUT, SW))
+    s.add('<rect x="792" y="560" width="60" height="260" rx="20" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G5), OUT, SW))
+    s.add('<rect x="212" y="600" width="610" height="130" rx="30" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(WHITE), OUT, SW))
+    s.path("M380,560 Q560,500 800,560 L812,690 Q560,660 372,690 Z", s.ball(c["base"]))
+    s.add('<rect x="240" y="540" width="150" height="80" rx="34" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(WHITE), OUT, SW))
+    s.add('<path d="M640,250 A120,120 0 1 0 760,410 A95,95 0 1 1 640,250 Z" fill="%s" stroke="%s" stroke-width="%d" stroke-linejoin="round"/>' % (s.ball(GOLD), OUT, SW))
+    sparkle(s, 560, 300, 22)
+    sparkle(s, 800, 230, 16)
+
+
+def prop_heart(s, c):
+    s.shadow(512, 850, 230, 30)
+    s.path("M512,820 C300,680 200,560 200,430 C200,320 290,250 380,250 C440,250 490,285 512,330 C534,285 584,250 644,250 C734,250 824,320 824,430 C824,560 724,680 512,820 Z", s.ball(c["base"]))
+    s.shine(340, 360, 50, 26, -30)
+    sparkle(s, 800, 270, 24)
+
+
+def prop_plane(s, c):
+    s.shadow(512, 860, 300, 26)
+    s.add('<g transform="rotate(-18 512 512)">')
+    s.path("M470,500 L260,330 L320,320 L560,470 Z", s.ball(c["dark"]))
+    s.path("M470,560 L300,720 L360,730 L560,590 Z", s.ball(c["dark"]))
+    s.path("M200,530 Q200,470 280,470 L760,470 Q880,470 900,530 Q880,590 760,590 L280,590 Q200,590 200,530 Z", s.ball(WHITE))
+    s.path("M200,530 L170,420 L230,420 L290,490 Z", s.ball(c["base"]))
+    for x in range(400, 760, 70):
+        s.add('<circle cx="%d" cy="515" r="14" fill="%s" stroke="%s" stroke-width="5"/>' % (x, c["light"], OUT))
+    s.line("M260,560 L840,560", 10, c["base"])
+    s.add('</g>')
+
+
 PROPS = {"geldbuendel": prop_money, "waage": prop_scale, "pokal": prop_trophy, "weltkugel": prop_globe,
          "stoppuhr": prop_stopwatch, "haus": prop_house, "auto": prop_car, "lupe": prop_magnifier,
          "arztkoffer": prop_doctor_bag, "maske": prop_mask,
          "sneaker": prop_sneaker, "basketball": prop_basketball,
          "geldboerse": prop_wallet, "schaltknueppel": prop_gear_stick, "waehlhebel": prop_selector,
          "pedale_2": lambda s, c: prop_pedals(s, c, 2), "pedale_3": lambda s, c: prop_pedals(s, c, 3),
-         "zapfsaeule": prop_fuel_pump, "werkzeug": prop_wrench, "ladestecker": prop_charger}
+         "zapfsaeule": prop_fuel_pump, "werkzeug": prop_wrench, "ladestecker": prop_charger,
+         "bett": prop_bed, "herz": prop_heart, "flugzeug": prop_plane}
 
 
 # 5. Comparison elements --------------------------------------------------
