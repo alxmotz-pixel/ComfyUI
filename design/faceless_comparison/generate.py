@@ -105,6 +105,11 @@ class Svg:
 # Faces -------------------------------------------------------------------
 
 def eye(s, cx, cy, rx, ry, expr, lid, side, look=(0, 0)):
+    if expr == "happy":
+        s.line("M%g,%g Q%g,%g %g,%g" % (cx - rx, cy + ry * 0.2, cx, cy - ry * 0.9, cx + rx, cy + ry * 0.2), 14)
+        return
+    if expr == "sad":
+        look = (0, 1)
     s.ell(cx, cy, rx, ry, WHITE)
     pr = min(rx, ry) * (0.36 if expr == "surprised" else 0.58)
     px, py = cx + look[0] * rx * 0.3, cy + look[1] * ry * 0.3 + ry * 0.08
@@ -138,6 +143,11 @@ def brow(s, cx, cy, w, expr, side):
     elif expr == "proud":
         inner, outer = (x1, x0) if side < 0 else (x0, x1)
         d = "M%g,%g Q%g,%g %g,%g" % (outer, cy - 4, cx, cy - 30, inner, cy - 20)
+    elif expr == "sad":
+        inner, outer = (x1, x0) if side < 0 else (x0, x1)
+        d = "M%g,%g L%g,%g" % (outer, cy + 10, inner, cy - 22)
+    elif expr == "happy":
+        d = "M%g,%g Q%g,%g %g,%g" % (x0, cy - 16, cx, cy - 44, x1, cy - 16)
     else:
         d = "M%g,%g Q%g,%g %g,%g" % (x0, cy, cx, cy - 16, x1, cy)
     s.line(d, 14)
@@ -258,7 +268,8 @@ def pip_side(bg):
 
 BIRD_WING = "M0,0 C-62,24 -84,150 -62,270 Q-42,248 -30,280 Q-14,250 2,272 Q18,240 28,258 C34,160 32,60 0,0 Z"
 # wing angle per pose (degrees clockwise, 0 = hanging straight down) and whether it is drawn in front of the body
-WING_POSE = {"neutral": (16, False), "proud": (40, False), "surprised": (150, False), "annoyed": (-72, True)}
+WING_POSE = {"neutral": (16, False), "proud": (40, False), "surprised": (150, False), "annoyed": (-72, True),
+             "happy": (135, False), "sad": (4, False)}
 
 
 def wing(s, x, y, angle, color, side, sx=1.0, sy=1.0):
@@ -273,6 +284,10 @@ def bird_face(s, c, cx, cy, gap, rx, ry, expr, brow_dy):
         ex = cx + side * gap / 2
         eye(s, ex, cy, rx, ry, expr, c["dark"], side)
         brow(s, ex, cy - ry - brow_dy, rx * 1.4, expr, side)
+    if expr == "sad":
+        x, y = cx - gap / 2 + rx * 0.5, cy + ry + 14
+        s.add('<path d="M%g,%g Q%g,%g %g,%g A%g,%g 0 1 1 %g,%g Q%g,%g %g,%g Z" fill="%s" stroke="%s" stroke-width="5"/>'
+              % (x, y - 30, x + 4, y - 12, x + 16, y + 4, 18, 18, x - 16, y + 4, x - 4, y - 12, x, y - 30, BLUE["light"], OUT))
 
 
 def figure_a(expr, bg):
@@ -295,9 +310,9 @@ def figure_a(expr, bg):
     for x in (432, 592):
         s.add('<ellipse cx="%d" cy="700" rx="28" ry="14" fill="%s" opacity="0.35"/>' % (x, BLUSH))
     bird_face(s, c, 512, 620, 124, 44, 54, expr, 26)
-    tilt = {"proud": -10, "annoyed": 8}.get(expr, 0)
+    tilt = {"proud": -10, "annoyed": 8, "sad": 20}.get(expr, 0)
     s.add('<g transform="rotate(%d 490 720)">' % tilt)
-    if expr == "surprised":
+    if expr in ("surprised", "happy"):
         s.path("M488,735 L600,768 L488,782 Z", s.ball(mix(GOLD, RED["dark"], 0.35)))
         s.path("M488,690 L626,708 L488,728 Z", s.ball(GOLD))
     else:
@@ -329,11 +344,11 @@ def figure_b(expr, bg):
     for x in (360, 664):
         s.add('<ellipse cx="%d" cy="1100" rx="40" ry="20" fill="%s" opacity="0.4"/>' % (x, BLUSH))
     bird_face(s, c, 512, 1015, 190, 58, 66, expr, 30)
-    if expr == "surprised":
+    if expr in ("surprised", "happy"):
         s.path("M478,1120 L546,1120 Q540,1170 512,1190 Q484,1170 478,1120 Z", s.ball(mix(GOLD, RED["dark"], 0.35)))
         s.path("M466,1098 Q512,1076 558,1098 Q540,1122 512,1130 Q484,1122 466,1098 Z", s.ball(GOLD))
     else:
-        tilt = {"proud": -8, "annoyed": 6}.get(expr, 0)
+        tilt = {"proud": -8, "annoyed": 6, "sad": 0}.get(expr, 0)
         s.add('<g transform="rotate(%d 512 1120)">' % tilt)
         s.path("M466,1098 Q512,1076 558,1098 L512,1166 Z", s.ball(GOLD))
         s.add('</g>')
@@ -1202,7 +1217,8 @@ def build():
     for bg, suffix in ((BG, ""), (None, "_freigestellt")):
         out["1_maskottchen/pip_frontal%s" % suffix] = pip_front(bg)
         out["1_maskottchen/pip_seitlich%s" % suffix] = pip_side(bg)
-        for expr, name in (("neutral", "neutral"), ("proud", "stolz"), ("surprised", "ueberrascht"), ("annoyed", "genervt")):
+        for expr, name in (("neutral", "neutral"), ("proud", "stolz"), ("surprised", "ueberrascht"), ("annoyed", "genervt"),
+                           ("happy", "jubelnd"), ("sad", "traurig")):
             out["2_figuren/figur_a_blau_%s%s" % (name, suffix)] = figure_a(expr, bg)
             out["2_figuren/figur_b_rot_%s%s" % (name, suffix)] = figure_b(expr, bg)
         out["2_figuren/figur_a_blau_seitlich%s" % suffix] = figure_side(True, bg)

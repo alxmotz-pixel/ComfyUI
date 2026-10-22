@@ -134,15 +134,18 @@ class Duel:
 
     # characters ---------------------------------------------------------------
 
-    def character(self, f, side, emotion, cx, bottom, t, height, react=None):
-        sy = 1 + 0.015 * math.sin((t + (0.4 if side == "b" else 0)) * 2 * math.pi * 1.2)
+    def character(self, f, side, emotion, cx, bottom, t, height, react=None, angle=0.0, sy=None):
+        if sy is None:
+            sy = 1 + 0.015 * math.sin((t + (0.4 if side == "b" else 0)) * 2 * math.pi * 1.2)
         if react is not None and 0 <= t - react < 0.3:
             sy += 0.08 * math.sin((t - react) / 0.3 * math.pi)
+        im = img("2_figuren/%s_%s_freigestellt" % (SIDES[side][0], emotion), height).copy()
         costume = self.th[side].get("kostuem")
-        for name in ("2_figuren/%s_%s_freigestellt" % (SIDES[side][0], emotion), costume and "6_kostueme/" + costume):
-            if name:
-                im = img(name, height)
-                put(f, im, cx, bottom - im.height * sy / 2, 2 - sy, sy)
+        if costume:
+            im.alpha_composite(img("6_kostueme/" + costume, height))
+        if angle:
+            im = im.rotate(angle, resample=Image.BICUBIC)
+        put(f, im, cx, bottom - im.height * sy / 2, 2 - sy, sy)
 
     def pip(self, f, cx, bottom, t, height, blowing=False, card=None):
         """Referee Pip; `card` = -1/1 holds a yellow card up on that side."""
@@ -242,30 +245,42 @@ class Duel:
         put(f, self.board(*self.score[i + (1 if after else 0)]), W / 2, 90, 1 + 0.12 * math.sin(clamp((t - 0.5) / 0.3) * math.pi))
         return f
 
+    # visible top of each figure as a fraction of its canvas height (crest tip)
+    TOP = {"a": 0.2, "b": 0.46}
+
     def finale(self, t):
-        f = img("3_hintergruende/bg2_studio_podest", H).copy()
+        """Final whistle: the winner jumps for joy with wings up, the loser leans over and is sad."""
+        f = self.stage()
         sa, sb = self.score[-1]
         win = "a" if sa > sb else "b" if sb > sa else None
         lose = {"a": "b", "b": "a"}.get(win)
+        x = {"a": 250, "b": 830}
+        bottom, height = 1730, 760
         if win:
-            self.character(f, win, "stolz" if t > 0.6 else "neutral", 540, 1270, t, 640, react=0.6)
-            self.character(f, lose, "genervt" if t > 0.6 else "neutral", 265, 1390, t, 640, react=0.6)
-        else:
-            self.character(f, "a", "ueberrascht", 265, 1390, t, 640)
-            self.character(f, "b", "ueberrascht", 540, 1270, t, 640)
-        self.pip(f, 815, 1460, t, 460, blowing=0.2 <= t < 0.9)
-        pop(f, self.board(sa, sb, 1.0), W / 2, 260, t - 0.7)
-        if win:
-            pop(f, img("4_requisiten/pokal_%s" % SIDES[win][2], 300), 540, 820, t - 1.3)
-            if t > 1.3:
+            go = t >= 0.6
+            hop = abs(math.sin(math.pi * (t - 0.6) / 0.5)) if go else 0.0
+            jump = 160 * hop
+            self.character(f, win, "jubelnd" if go else "neutral", x[win], bottom - jump, t, height,
+                           react=0.6, sy=1 + 0.06 * hop - 0.06 * (1 - hop) ** 6 if go else None)
+            lean = ease((t - 0.6) / 0.8)
+            self.character(f, lose, "traurig" if go else "neutral", x[lose] + (40 if lose == "b" else -40) * lean,
+                           bottom + 20 * lean, t, height, react=0.6, angle=(-18 if lose == "b" else 18) * lean)
+            top = bottom - jump - height * (1 - self.TOP[win])
+            pop(f, img("4_requisiten/pokal_%s" % SIDES[win][2], 260), x[win], top - 110, t - 0.9)
+            if t > 0.9:
                 d = ImageDraw.Draw(f)
-                k = ease((t - 1.3) / 1.2)
+                k = ease((t - 0.9) / 1.4)
                 for a, dist, col, r in self.confetti:
                     if k < 1:
-                        x = 540 + math.cos(a) * dist * k
-                        y = 820 + math.sin(a) * dist * k * 0.8 + 600 * k * k
-                        d.ellipse([x - r, y - r, x + r, y + r], fill=col, outline=OUT, width=3)
-        pop(f, self.question, W / 2, 520, t - self.T["frage"])
+                        cx = x[win] + math.cos(a) * dist * k
+                        cy = top + math.sin(a) * dist * k * 0.8 + 700 * k * k
+                        d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=col, outline=OUT, width=3)
+        else:
+            for k in SIDES:
+                self.character(f, k, "ueberrascht", x[k], bottom, t, height)
+        self.pip(f, W / 2, 1800, t, 520, blowing=0.2 <= t < 0.9)
+        put(f, self.board(sa, sb, 1.0), W / 2, 260, 1 + 0.12 * math.sin(clamp((t - 0.3) / 0.3) * math.pi))
+        pop(f, self.question, W / 2, 560, t - self.T["frage"])
         return f
 
     def loop(self, t):
@@ -290,9 +305,12 @@ class Duel:
 def main():
     theme_path = sys.argv[1]
     short = "--kurz" in sys.argv[2:]
+    only_end = "--nur-ende" in sys.argv[2:]
     with open(theme_path, encoding="utf-8") as f:
         duel = Duel(json.load(f), short)
     tl = duel.timeline()
+    if only_end:
+        tl = tl[-2:]
     audio = np.zeros(int(SR * (sum(d for _, d, _ in tl) + 1)))
     t0 = 0.0
     for _, dur, sounds in tl:
@@ -309,7 +327,7 @@ def main():
     wav.close()
 
     os.makedirs(os.path.join(os.path.dirname(os.path.abspath(__file__)), "demo"), exist_ok=True)
-    out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "demo", os.path.splitext(os.path.basename(theme_path))[0] + ("_kurz" if short else "") + ".mp4")
+    out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "demo", os.path.splitext(os.path.basename(theme_path))[0] + ("_kurz" if short else "") + ("_ende" if only_end else "") + ".mp4")
     ff = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", "%dx%d" % (W, H),
                            "-r", str(FPS), "-i", "-", "-i", wav.name, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "20",
                            "-c:a", "aac", "-b:a", "160k", "-shortest", "-movflags", "+faststart", out], stdin=subprocess.PIPE)
