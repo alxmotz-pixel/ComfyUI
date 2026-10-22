@@ -8,7 +8,7 @@ Theme keys: "a" = blue side, "b" = red side, each {"name", "kostuem"?}; "hook" =
 {"text", "bilder": [prop/element names], "zahl"?: {"label", "wert", "vor"?, "nach"?}, "messer"?: {"label", "wert" 0-100}};
 "frage" = closing question; optional "ende" = {"sieger": pose, "verlierer": pose} for the final scene
 (default jubelnd/traurig; a happy loser sways instead of leaning over) or {"pokal_klau": true}: the winner cheers
-sadly with the cup, the happy loser walks over, slaps his head, takes the cup and gets a yellow card; optional "kurz" = round indices for the short cut (--kurz). Every scene length is a
+with the cup, the happy loser walks over, slaps his head, takes the cup and gets a yellow card; optional "kurz" = round indices for the short cut (--kurz). Every scene length is a
 multiple of one beat at 120 BPM, and the last second fades back into the first frame so the video loops.
 Referee Pip whistles every round, shows the loser a yellow card and calls the final score. A side may set "emotion".
 """
@@ -301,11 +301,11 @@ class Duel:
         pop(f, self.question, W / 2, 560, t - self.T["frage"])
         return f
 
-    # pokal_klau beats (s): winner cheers sadly with the cup, loser walks over, slap, walks back, cheers, question
+    # pokal_klau beats (s): winner cheers with the cup, loser walks over, slap, walks back, cheers, question
     KLAU = {"hin": 2.0, "klaps": 3.0, "zurueck": 3.5, "jubel": 4.5, "frage": 5.0, "laenge": 8.0}
 
     def finale_klau(self, t):
-        """The winner holds the cup but cheers sadly; the happy loser walks over, slaps the back of his head,
+        """The winner cheers with the cup; the happy loser walks over, slaps the back of his head,
         takes the cup back to his side and cheers for real. Pip whistles the foul and shows him a yellow card."""
         f = self.stage()
         K = self.KLAU
@@ -329,12 +329,12 @@ class Duel:
         self.pip(f, W / 2, 1570, t, 440, blowing=(0.2 <= t < 0.9) or (hit + 0.1 <= t < hit + 0.5),
                  card=-toward if hit + 0.5 <= t < K["frage"] + 1.5 else None)
 
-        # holder: sad half-hearted hops with the cup until the slap, then shocked, then sad and leaning over
+        # holder: cheers and hops with the cup until the slap, then shocked, then sad and leaning over
         if t < hit:
-            hop = abs(math.sin(math.pi * (t - 0.6))) if t >= 0.6 else 0.0
-            hx, hy = target, 70 * hop
-            self.character(f, holder, "jubelnd_traurig" if t >= 0.6 else "neutral", hx, bottom - hy, t, height,
-                           react=0.6, sy=1.0 if t >= 0.6 else None)
+            hop = abs(math.sin(math.pi * (t - 0.6) / 0.5)) if t >= 0.6 else 0.0
+            hx, hy = target, 160 * hop
+            self.character(f, holder, "jubelnd" if t >= 0.6 else "neutral", hx, bottom - hy, t, height,
+                           react=0.6, sy=1 + 0.06 * hop - 0.06 * (1 - hop) ** 6 if t >= 0.6 else None)
         else:
             jolt = math.sin(clamp((t - hit) / 0.25) * math.pi)
             lean = ease((t - K["jubel"]) / 0.8) if t >= K["jubel"] else 0.0
