@@ -937,6 +937,179 @@ def channel_avatar():
     s.add('<circle cx="512" cy="512" r="500" fill="none" stroke="%s" stroke-width="%d"/>' % (OUT, SW * 2))
     return s
 
+# 8. Alternative character styles: blue (tall) and red (round) side by side, 2048x1536 ------------
+
+def flat_eye(s, x, y, r):
+    s.add('<circle cx="%g" cy="%g" r="%g" fill="%s"/><circle cx="%g" cy="%g" r="%g" fill="#FFF"/>' % (x, y, r, OUT, x - r * 0.3, y - r * 0.35, r * 0.3))
+
+
+def style_flat(s, c, tall):
+    """Flat: no gradients, geometric shapes."""
+    if tall:
+        s.shadow(512, 1420, 170, 24)
+        s.line("M470,1200 L470,1390 M554,1200 L554,1390", 30, c["deep"])
+        s.add('<rect x="402" y="700" width="220" height="520" rx="110" fill="%s" stroke="%s" stroke-width="%d"/>' % (c["base"], OUT, SW))
+        s.line("M410,820 L320,1020 M614,820 L704,1020", 26, c["dark"])
+        s.add('<circle cx="512" cy="520" r="170" fill="%s" stroke="%s" stroke-width="%d"/>' % (c["base"], OUT, SW))
+        s.path("M380,430 Q512,300 650,420 L640,380 Q512,280 384,390 Z", c["deep"])
+        flat_eye(s, 460, 520, 22)
+        flat_eye(s, 564, 520, 22)
+        s.line("M470,600 Q512,630 554,600", 10)
+    else:
+        s.shadow(512, 1420, 280, 30)
+        s.line("M440,1330 L440,1395 M584,1330 L584,1395", 40, c["deep"])
+        s.line("M250,1080 L170,1200 M774,1080 L854,1200", 34, c["dark"])
+        s.add('<circle cx="512" cy="1080" r="280" fill="%s" stroke="%s" stroke-width="%d"/>' % (c["base"], OUT, SW))
+        s.add('<circle cx="512" cy="1080" r="200" fill="%s"/>' % mix(c["base"], WHITE, 0.15))
+        flat_eye(s, 440, 1020, 30)
+        flat_eye(s, 584, 1020, 30)
+        s.path("M440,1120 Q512,1200 584,1120 Z", OUT)
+    for x in ((470, 554) if tall else (420, 604)):
+        s.ell(x, 1402 if tall else 1405, 50, 22, G5)
+
+
+def style_bird(s, c, tall):
+    """Birds, matching the Vergleichvogel referee."""
+    if tall:
+        s.shadow(512, 1420, 180, 26)
+        for x in (472, 552):
+            s.tube("M%d,1180 L%d,1385" % (x, x), 16, GOLD)
+            bird_foot(s, x, 1390, ((-36, 18), (0, 26), (36, 18)))
+        feathers(s, 512, 440, (-20, 5, 30), 1.1, c["deep"])
+        s.path("M512,430 C640,430 680,620 680,860 C680,1100 620,1220 512,1220 C404,1220 344,1100 344,860 C344,620 384,430 512,430 Z", s.ball(c["base"]))
+        s.path("M352,800 C300,880 300,1000 330,1080 Q350,1040 380,1060 Z", s.ball(c["dark"]))
+        s.path("M672,800 C724,880 724,1000 694,1080 Q674,1040 644,1060 Z", s.ball(c["dark"]))
+        s.add('<ellipse cx="512" cy="980" rx="110" ry="190" fill="#FFF" opacity="0.35"/>')
+        for side in (-1, 1):
+            eye(s, 512 + side * 62, 620, 44, 54, "proud", c["dark"], side)
+        s.path("M490,690 L620,720 L490,750 Z", s.ball(GOLD))
+    else:
+        s.shadow(512, 1420, 280, 30)
+        for x in (450, 574):
+            bird_foot(s, x, 1395, ((-40, 20), (0, 28), (40, 20)))
+        feathers(s, 512, 820, (-30, 0, 30), 0.9, c["deep"])
+        s.path("M240,1080 C160,1120 150,1240 210,1290 Q230,1240 270,1250 Z", s.ball(c["dark"]))
+        s.path("M784,1080 C864,1120 874,1240 814,1290 Q794,1240 754,1250 Z", s.ball(c["dark"]))
+        s.ell(512, 1100, 290, 280, s.ball(c["base"]))
+        s.add('<ellipse cx="512" cy="1210" rx="180" ry="130" fill="#FFF" opacity="0.35"/>')
+        for side in (-1, 1):
+            eye(s, 512 + side * 95, 1020, 58, 66, "neutral", c["dark"], side)
+        s.path("M470,1100 Q512,1080 554,1100 L512,1160 Z", s.ball(GOLD))
+
+
+def style_blob(s, c, tall):
+    """Glossy jelly blobs without limbs."""
+    if tall:
+        s.shadow(512, 1400, 220, 30)
+        s.path("M512,380 C600,520 700,800 700,1120 C700,1320 620,1390 512,1390 C404,1390 324,1320 324,1120 C324,800 424,520 512,380 Z", s.ball(c["base"]))
+        s.shine(440, 800, 40, 120, 15, 0.5)
+        s.add('<circle cx="600" cy="1180" r="22" fill="#FFF" opacity="0.5"/>')
+        for side in (-1, 1):
+            eye(s, 512 + side * 70, 980, 50, 62, "neutral", c["dark"], side)
+        mouth(s, 512, 1100, 90, "happy")
+    else:
+        s.shadow(512, 1410, 330, 34)
+        s.path("M200,1390 C150,1390 160,1250 220,1200 C260,1000 380,860 512,860 C644,860 764,1000 804,1200 C864,1250 874,1390 824,1390 Z", s.ball(c["base"]))
+        s.shine(380, 980, 70, 30, -20, 0.5)
+        for side in (-1, 1):
+            eye(s, 512 + side * 100, 1100, 62, 70, "surprised", c["dark"], side)
+        mouth(s, 512, 1230, 140, "surprised")
+
+
+def style_robot(s, c, tall):
+    """Robots with screen faces."""
+    if tall:
+        s.shadow(512, 1420, 200, 26)
+        s.line("M512,300 L512,220", 10)
+        s.add('<circle cx="512" cy="205" r="24" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(GOLD), OUT, SW))
+        for x in (460, 564):
+            s.add('<rect x="%d" y="1180" width="44" height="190" rx="12" fill="%s" stroke="%s" stroke-width="%d"/>' % (x - 22, s.ball(G4), OUT, SW))
+            s.add('<rect x="%d" y="1360" width="90" height="46" rx="14" fill="%s" stroke="%s" stroke-width="%d"/>' % (x - 45, s.ball(G5), OUT, SW))
+        for x, d in ((352, "M352,800 Q290,920 300,1060"), (672, "M672,800 Q734,920 724,1060")):
+            s.tube(d, 30, G4)
+            s.add('<circle cx="%d" cy="1070" r="34" fill="%s" stroke="%s" stroke-width="%d"/>' % (300 if x < 512 else 724, s.ball(c["dark"]), OUT, SW))
+        s.add('<rect x="352" y="700" width="320" height="500" rx="50" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(c["base"]), OUT, SW))
+        s.add('<circle cx="512" cy="900" r="50" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(c["light"]), OUT, SW))
+        s.add('<rect x="372" y="300" width="280" height="360" rx="60" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(c["base"]), OUT, SW))
+        s.add('<rect x="402" y="360" width="220" height="200" rx="40" fill="#1E2430" stroke="%s" stroke-width="%d"/>' % (OUT, SW))
+        for x in (465, 559):
+            s.add('<rect x="%d" y="420" width="34" height="56" rx="17" fill="%s"/>' % (x - 17, c["light"]))
+        s.line("M480,520 Q512,536 544,520", 8, c["light"])
+        s.add('<rect x="482" y="650" width="60" height="60" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G4), OUT, SW))
+    else:
+        s.shadow(512, 1420, 280, 30)
+        s.add('<circle cx="512" cy="1340" r="70" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G5), OUT, SW))
+        s.add('<circle cx="512" cy="1340" r="26" fill="%s"/>' % G3)
+        for d, x in (("M250,1080 Q170,1120 170,1220", 170), ("M774,1080 Q854,1120 854,1220", 854)):
+            s.tube(d, 34, G4)
+            s.path("M%d,1220 l-30,40 M%d,1220 l30,40" % (x, x), "none")
+            s.line("M%d,1215 L%d,1265 M%d,1215 L%d,1265" % (x, x - 34, x, x + 34), 16, G5)
+        s.path("M232,1100 C232,860 792,860 792,1100 L792,1180 Q792,1290 680,1290 L344,1290 Q232,1290 232,1180 Z", s.ball(c["base"]))
+        s.add('<rect x="322" y="960" width="380" height="190" rx="60" fill="#1E2430" stroke="%s" stroke-width="%d"/>' % (OUT, SW))
+        for x in (430, 594):
+            s.add('<circle cx="%d" cy="1040" r="34" fill="%s"/>' % (x, c["light"]))
+        s.path("M470,1100 Q512,1130 554,1100 Z", c["light"], False)
+        s.line("M512,870 L512,800", 10)
+        s.add('<circle cx="512" cy="790" r="22" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(GOLD), OUT, SW))
+
+
+def pie_eye(s, x, y, rx, ry):
+    s.ell(x, y, rx, ry, OUT, False)
+    s.add('<path d="M%g,%g l%g,%g l%g,%g Z" fill="#FFF"/>' % (x + rx * 0.1, y - ry * 0.55, rx * 0.5, ry * 0.1, -rx * 0.35, ry * 0.4))
+
+
+def style_retro(s, c, tall):
+    """1930s rubber-hose cartoon: pie eyes, white gloves, big shoes."""
+    def glove(x, y, r):
+        s.add('<circle cx="%g" cy="%g" r="%g" fill="#FFF" stroke="%s" stroke-width="%d"/>' % (x, y, r, OUT, SW))
+        s.line("M%g,%g L%g,%g" % (x - r * 0.5, y - r * 0.2, x + r * 0.2, y - r * 0.2), 5)
+
+    if tall:
+        s.shadow(512, 1420, 200, 26)
+        s.tube("M470,1180 C430,1260 500,1300 460,1385", 22, OUT)
+        s.tube("M554,1180 C600,1260 530,1300 570,1385", 22, OUT)
+        for x in (440, 590):
+            s.ell(x, 1395, 70, 30, s.ball(G5))
+        s.tube("M392,820 C250,880 380,1000 250,1080", 22, OUT)
+        s.tube("M632,820 C780,760 650,640 790,580", 22, OUT)
+        glove(250, 1090, 40)
+        glove(795, 570, 40)
+        s.path("M512,340 C650,340 650,520 640,700 L660,1150 Q660,1220 590,1220 L434,1220 Q364,1220 364,1150 L384,700 C374,520 374,340 512,340 Z", c["base"])
+        s.path("M410,500 Q512,560 614,500 Q620,640 512,660 Q404,640 410,500 Z", "#FFE9D6")
+        pie_eye(s, 470, 520, 26, 46)
+        pie_eye(s, 554, 520, 26, 46)
+        s.path("M450,600 Q512,660 574,600 Q512,630 450,600 Z", OUT)
+        s.add('<circle cx="512" cy="580" r="16" fill="%s"/>' % OUT)
+    else:
+        s.shadow(512, 1420, 280, 30)
+        s.tube("M440,1300 C400,1340 460,1360 430,1390", 24, OUT)
+        s.tube("M584,1300 C624,1340 564,1360 594,1390", 24, OUT)
+        for x in (410, 614):
+            s.ell(x, 1400, 80, 32, s.ball(G5))
+        s.tube("M250,1060 C150,1000 230,900 150,850", 24, OUT)
+        s.tube("M774,1060 C880,1100 800,1200 880,1250", 24, OUT)
+        glove(150, 840, 44)
+        glove(885, 1260, 44)
+        s.ell(512, 1080, 280, 260, c["base"])
+        s.path("M330,1000 Q512,920 694,1000 Q700,1200 512,1220 Q324,1200 330,1000 Z", "#FFE9D6")
+        pie_eye(s, 450, 1030, 32, 56)
+        pie_eye(s, 574, 1030, 32, 56)
+        s.path("M420,1130 Q512,1230 604,1130 Q512,1170 420,1130 Z", OUT)
+        s.add('<ellipse cx="512" cy="1105" rx="26" ry="20" fill="%s"/>' % OUT)
+
+
+STYLES = {"1_flach": style_flat, "2_voegel": style_bird, "3_gummi": style_blob, "4_roboter": style_robot, "5_retro": style_retro}
+
+
+def style_pair(fn):
+    s = Svg(2048, 1536, BG)
+    fn(s, BLUE, True)
+    s.add('<g transform="translate(1024 0)">')
+    fn(s, RED, False)
+    s.add('</g>')
+    return s
+
+
 # ----------------------------------------------------------------------
 
 def build():
@@ -963,6 +1136,8 @@ def build():
     out["7_kanal/vergleichvogel_profilbild"] = channel_avatar()
     out["6_kostueme/automatik_figur_a"] = costume_driver_a()
     out["6_kostueme/manuell_figur_b"] = costume_racer_b()
+    for name, fn in STYLES.items():
+        out["8_stile/" + name] = style_pair(fn)
     for name, fn in PROPS.items():
         for cname, c in (("blau", BLUE), ("rot", RED)):
             s = Svg(1024, 1024)
