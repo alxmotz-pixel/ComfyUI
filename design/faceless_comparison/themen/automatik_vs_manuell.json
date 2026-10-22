@@ -180,5 +180,11 @@
       "ansage": "Runde 6: Die Zukunft!"
     }
   ],
+  "ende": {
+    "abwuergen": true,
+    "spruch": "Läuft bei mir! Wer ist jetzt der Gewinner?",
+    "konter": "Perfekt wie immer.",
+    "pip": "Tja … verschaltet."
+  },
   "frage": "Und du: Automatik oder Manuell? Schreib's in die Kommentare!"
 }

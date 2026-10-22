@@ -16,9 +16,14 @@ Referee Pip whistles every round, shows the loser a yellow card and calls the fi
 Dialogue: three speakers. Each side's "text" is that bird's own line, shown in a speech bubble in its colour.
 The referee says the hook, every round's "ansage" (default "Runde N: TITEL!"), the verdict (or a round's "urteil"), "ende.abpfiff" and the
 closing question; with pokal_klau the thief says "ende.spruch". All lines with their start times are written to
-demo/<theme>_skript.txt for recording the voices later.
+demo/<theme>_skript.txt. With "ende": {"abwuergen": true, "spruch", "konter", "pip"} the winner cheers ("spruch"),
+then stalls his car on the street while the other bird rolls past ("konter") and Pip comments ("pip").
+
+Voices: if stimmen/<theme>/ holds one mp3 per line (sorted by name, in timeline order), each scene is stretched to
+fit its spoken lines (rounded up to the beat) and the voices are mixed into the soundtrack.
 """
 
+import glob
 import json
 import math
 import os
@@ -58,7 +63,34 @@ def slap():
     return 0.7 * crack + 0.5 * thump
 
 
-SOUNDS = dict(SOUNDS, ding=ding(), pfiff=short_whistle(), klatsch=slap())
+def engine(kind):
+    """Car sounds: 'rev' (revving), 'stall' (sputter and die), 'vorbei' (smooth drive-by)."""
+    dur = {"rev": 1.0, "stall": 1.0, "vorbei": 2.5}[kind]
+    tt = np.arange(int(SR * dur)) / SR
+    rng = np.random.default_rng(5)
+    if kind == "vorbei":
+        f = 70 + 15 * tt / dur
+        env = np.sin(np.pi * tt / dur) ** 2
+        return 0.25 * env * (np.sign(np.sin(2 * np.pi * np.cumsum(f) / SR)) * 0.4 + 0.3 * rng.standard_normal(len(tt)) * 0.3)
+    f = 60 + (80 * tt / dur if kind == "rev" else 40 * (1 - tt / dur))
+    tone = np.sign(np.sin(2 * np.pi * np.cumsum(f) / SR)) * 0.5 + 0.2 * rng.standard_normal(len(tt))
+    if kind == "rev":
+        return 0.3 * tone * np.minimum(1, tt / 0.1)
+    gate = (np.sin(2 * np.pi * (6 + 4 * tt) * tt) > 0.2 * tt / dur).astype(float) * (1 - tt / dur)
+    clunk = np.zeros(len(tt))
+    k = np.arange(int(SR * 0.3)) / SR
+    clunk[-len(k):] = np.sin(2 * np.pi * 70 * k) * np.exp(-k * 15)
+    return 0.3 * tone * gate + 0.6 * clunk
+
+
+SOUNDS = dict(SOUNDS, ding=ding(), pfiff=short_whistle(), klatsch=slap(),
+              rev=engine("rev"), stall=engine("stall"), vorbei=engine("vorbei"))
+
+
+def load_voice(path):
+    raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-i", path, "-f", "s16le", "-ac", "1", "-ar", str(SR), "-"],
+                         check=True, stdout=subprocess.PIPE).stdout
+    return np.frombuffer(raw, dtype=np.int16).astype(np.float64) / 32768
 
 
 def outlined(text, size, fill="white"):
@@ -173,6 +205,11 @@ class Duel:
         self.thief = "b" if winner == "a" else "a"
         self.spruch = end.get("spruch")
         self.spruch_bubble = self.spruch and speech(self.spruch, self.thief, 0.75 if self.thief == "b" else 0.25, 60, 600)
+        if end.get("abwuergen"):
+            other = "b" if winner == "a" else "a"
+            self.spruch_bubble = speech(end["spruch"], winner, 0.5, 56, 700)
+            self.konter_bubble = speech(end["konter"], other, 0.5, 56, 600)
+            self.pip_bubble = speech(end["pip"], "pip", 0.2, 56, 560)
         self.vs = img("5_elemente/vs", 460)
         self.labels = {k: pill(th[k]["name"], SIDES[k][1]) for k in SIDES}
         self.texts = [{k: speech(r[k]["text"], k, 0.25 if k == "a" else 0.75, 56, 800) for k in SIDES} for r in self.rounds]
@@ -443,9 +480,98 @@ class Duel:
         pop(f, self.question, W / 2, 560, t - K["frage"])
         return f
 
-    def final_scene(self):
-        """(scene, duration, sounds, lines) for the last scene."""
-        if self.th.get("ende", {}).get("pokal_klau"):
+    def finale_abwuergen(self, t, S):
+        """Winner cheers with the cup, then on the street his car stalls while the other bird rolls past."""
+        sa, sb = self.score[-1]
+        win = "a" if sa > sb else "b"
+        other = "b" if win == "a" else "a"
+        if t < S["strasse"]:
+            f = self.stage()
+            go = t >= 0.6
+            hop = abs(math.sin(math.pi * (t - 0.6) / 0.5)) if go else 0.0
+            xs = {"a": 250, "b": 830}
+            self.character(f, win, "jubelnd" if go else "neutral", xs[win], 1730 - 160 * hop, t, 760, react=0.6,
+                           sy=1 + 0.06 * hop - 0.06 * (1 - hop) ** 6 if go else None)
+            self.character(f, other, "genervt" if go else "neutral", xs[other], 1730, t, 760, react=0.6)
+            top = 1730 - 160 * hop - 760 * (1 - self.TOP[win])
+            pop(f, img("4_requisiten/pokal_%s" % SIDES[win][2], 240), xs[win], top - 110, t - 0.7)
+            self.pip(f, W / 2, 1800, t, 480, blowing=0.2 <= t < 0.9)
+            put(f, self.board(sa, sb, 1.0), W / 2, 260, 1 + 0.12 * math.sin(clamp((t - 0.3) / 0.3) * math.pi))
+            if 0.3 <= t < S["spruch"]:
+                pop(f, self.abpfiff_bubble, W / 2, 1000, t - 0.3)
+            if S["spruch"] <= t:
+                pop(f, self.spruch_bubble, min(max(xs[win], 380), W - 380), 900, t - S["spruch"])
+            return f
+        # street scene
+        f = img("3_hintergruende/bg3_stadt_skyline_tag", H).copy()
+        ts = t - S["strasse"]
+        put(f, self.board(sa, sb, 1.0), W / 2, 260)
+
+        def car(side, cx, shake, emotion):
+            im = img("4_requisiten/auto_%s" % SIDES[side][2], 640)
+            cy = 1624 + shake
+            roof = cy - 320 + 229
+            bird_h = 380 if side == "b" else 340
+            bird = img("2_figuren/%s_%s_freigestellt" % (SIDES[side][0], emotion), bird_h)
+            vis_top = roof - (170 if side == "b" else 230)
+            put(f, bird, cx + 10, vis_top - bird_h * self.TOP[side] + bird_h / 2)
+            put(f, im, cx, cy)
+            return roof
+
+        stalled = ts >= S["aus"] - S["strasse"]
+        rumble = S["rev"] - S["strasse"] <= ts < S["aus"] - S["strasse"]
+        shake = 10 * math.sin(ts * 70) if rumble else 0.0
+        car(win, 700, shake, "genervt" if stalled else "jubelnd")
+        if S["stall"] - S["strasse"] <= ts < S["aus"] - S["strasse"] + 0.6:
+            d = ImageDraw.Draw(f)
+            for i in range(6):
+                k = ((ts - (S["stall"] - S["strasse"])) * 1.5 + i / 6) % 1
+                r = 30 + 60 * k
+                gray = round(150 + 80 * k)
+                d.ellipse([360 - 80 * k - r, 1700 - 200 * k - r, 360 - 80 * k + r, 1700 - 200 * k + r], fill=(gray, gray, gray))
+        tc = ts - (S["konter_auto"] - S["strasse"])
+        if tc > 0:
+            bx = -400 + (W + 800) * clamp(tc / 2.5)
+            roof_b = car(other, bx, 0.0, "stolz")
+            if S["konter"] <= t < S["pip_satz"] and self.konter_bubble:
+                pop(f, self.konter_bubble, min(max(bx, 380), W - 380), roof_b - 260, t - S["konter"])
+        if t >= S["pip_satz"]:
+            self.pip(f, 170, 1980, t, 460)
+            if t < S["frage"]:
+                pop(f, self.pip_bubble, 380, 1260, t - S["pip_satz"])
+        if t >= S["frage"]:
+            pop(f, self.question, W / 2, 620, t - S["frage"])
+        return f
+
+    def abwuergen_schedule(self, voice):
+        """Start times inside the final scene, spaced by the spoken lines (or fixed reading times without voices)."""
+        d = [voice[i] if voice else 2.0 for i in range(5)]
+        S = {"spruch": 0.3 + d[0] + 0.2}
+        S["strasse"] = S["spruch"] + d[1] + 0.3
+        S["rev"] = S["strasse"] + 0.3
+        S["stall"] = S["rev"] + 1.0
+        S["aus"] = S["stall"] + 1.0
+        S["konter_auto"] = S["aus"] + 0.5
+        S["konter"] = S["konter_auto"] + 0.6
+        S["pip_satz"] = max(S["konter_auto"] + 2.5, S["konter"] + d[2] + 0.3)
+        S["frage"] = S["pip_satz"] + d[3] + 0.3
+        S["ende"] = math.ceil((S["frage"] + d[4] + 0.8) * 2) / 2
+        return S
+
+    def final_scene(self, voice=None):
+        """(scene, duration, sounds, lines) for the last scene; `voice` = durations of its spoken lines."""
+        end = self.th.get("ende", {})
+        if end.get("abwuergen"):
+            S = self.abwuergen_schedule(voice)
+            sounds = [(0.2, "whistle"), (0.7, "ding"), (S["strasse"], "whoosh"), (S["rev"], "rev"), (S["stall"], "stall"),
+                      (S["konter_auto"], "vorbei"), (S["frage"], "pop")]
+            sa, sb = self.score[-1]
+            win = "a" if sa > sb else "b"
+            lines = [(0.3, "pip", self.abpfiff), (S["spruch"], win, end["spruch"]),
+                     (S["konter"], "b" if win == "a" else "a", end["konter"]), (S["pip_satz"], "pip", end["pip"]),
+                     (S["frage"], "pip", self.th["frage"])]
+            return (lambda t: self.finale_abwuergen(t, S)), S["ende"], sounds, lines
+        if end.get("pokal_klau"):
             K = self.KLAU
             hit = K["klaps"] + 0.15
             sounds = [(0.2, "whistle"), (0.7, "ding"), (K["hin"], "whoosh"), (hit, "klatsch"),
@@ -457,11 +583,11 @@ class Duel:
 
     def loop(self, t):
         """Fade the last finale frame back into the first intro frame so the end flows into the start."""
-        scene, dur, _, _ = self.final_scene()
+        scene, dur, _, _ = self.last
         return Image.blend(scene(dur), self.intro(0.0), ease(t / self.T["loop"]))
 
-    def timeline(self):
-        """(scene, duration, [(offset, sound)], [(offset, speaker, line)])"""
+    def timeline(self, voices=None):
+        """(scene, duration, [(offset, sound)], [(offset, speaker, line)]); `voices` = one sample array per line."""
         T = self.T
         tl = [(self.intro, T["intro"], [(0.0, "whoosh"), (0.0, "pop")], [(0.0, "pip", self.th["hook"])])]
         for i, r in enumerate(self.rounds):
@@ -472,7 +598,18 @@ class Duel:
             tl.append((lambda t, i=i: self.side(i, "b", t), T["seite"], side_sounds, [(0.1, "b", r["b"]["text"])]))
             tl.append((lambda t, i=i: self.verdict(i, t), T["urteil"], [(0.3, "pop"), (0.45, "ding" if r["sieger"] else "pop")],
                        [(0.3, "pip", self.urteile[i])]))
-        tl.append(self.final_scene())
+        n_before = sum(len(x[3]) for x in tl)
+        final_voice = [len(v) / SR for v in voices[n_before:]] if voices else None
+        self.last = self.final_scene(final_voice)
+        tl.append(self.last)
+        if voices:
+            # stretch every scene so its spoken lines fit, rounded up to the beat
+            i = 0
+            for k, (scene, dur, sounds, lines) in enumerate(tl):
+                need = max([off + len(voices[i + j]) / SR + 0.3 for j, (off, _, _) in enumerate(lines)] + [dur])
+                tl[k] = (scene, math.ceil(need * 2) / 2, sounds, lines)
+                i += len(lines)
+            self.last = tl[-1]
         tl.append((self.loop, T["loop"], [(0.0, "whoosh")], []))
         return tl
 
@@ -483,16 +620,28 @@ def main():
     only_end = "--nur-ende" in sys.argv[2:]
     with open(theme_path, encoding="utf-8") as f:
         duel = Duel(json.load(f), short)
-    tl = duel.timeline()
+    name = os.path.splitext(os.path.basename(theme_path))[0]
+    voice_files = sorted(glob.glob(os.path.join(os.path.dirname(os.path.abspath(__file__)), "stimmen", name, "*.mp3")))
+    voices = [load_voice(p) for p in voice_files] if voice_files and not short else None
+    tl = duel.timeline(voices)
+    n_lines = sum(len(x[3]) for x in tl)
+    if voices and len(voices) != n_lines:
+        sys.exit("stimmen/%s has %d files, the script has %d lines" % (name, len(voices), n_lines))
     if only_end:
         tl = tl[-2:]
     audio = np.zeros(int(SR * (sum(d for _, d, _, _ in tl) + 1)))
     script = []
     t0 = 0.0
+    li = 0
     for _, dur, sounds, lines in tl:
         for off, kind in sounds:
             s = int(SR * (t0 + off))
-            audio[s:s + len(SOUNDS[kind])] += SOUNDS[kind]
+            audio[s:s + len(SOUNDS[kind])] += SOUNDS[kind] * (0.5 if voices else 1.0)
+        for off, _, _ in lines:
+            if voices:
+                s = int(SR * (t0 + off))
+                audio[s:s + len(voices[li])] += voices[li]
+            li += 1
         script += ["%02d:%04.1f  %-15s %s" % ((t0 + off) // 60, (t0 + off) % 60, SPEAKERS[who][0] + ":", line) for off, who, line in lines]
         t0 += dur
     wav = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
