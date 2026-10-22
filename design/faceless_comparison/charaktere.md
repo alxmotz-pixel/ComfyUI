@@ -12,6 +12,7 @@ günstig, Handarbeit). Blaise ist immer blau, Rocco immer rot.
 | Lieblingssätze | „Perfekt wie immer.“ · „…, versteht sich.“ · „Mein Lieber …“ | „Läuft bei mir!“ · „Wer ist jetzt der Gewinner?“ | „Runde …!“ · „Punkt für …!“ · „Abpfiff!“ |
 | Running Gag | wischt sich vor dem Satz über die Federn | rollt mit den Augen, wenn Blaise prahlt | pfeift jede Runde an, gelbe Karte bei Fouls |
 | Stimme (Regie) | männlich, etwas näselnd, gedehnt, arrogant-charmant | männlich, jung, schnell, frech, viel Energie | ruhig, deutlich, leicht ironisch, wie ein Sportkommentator |
+| ElevenLabs-Stimme | noch offen | noch offen | **Axel Jones** (`ZPI4bKVkeIVdAkOA73qX`), Modell `eleven_v4` |
 
 ## Zuordnung pro Thema
 
