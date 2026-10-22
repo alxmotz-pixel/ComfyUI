@@ -1,0 +1,28 @@
+00:00.0  SCHIEDSRICHTER: Reich gegen Arm! Wer lebt wirklich besser?
+00:04.0  SCHIEDSRICHTER: Runde 1: Urlaub!
+00:05.1  BLAU:           Ich flieg einfach spontan ans Meer!
+00:09.1  ROT:            Und ich chill den ganzen Tag auf Balkonien!
+00:12.8  SCHIEDSRICHTER: Punkt für Reich!
+00:15.0  SCHIEDSRICHTER: Runde 2: Einkaufen!
+00:16.1  BLAU:           Preise? Schau ich mir gar nicht an!
+00:20.1  ROT:            Ich kenn jedes Angebot in der Stadt!
+00:23.8  SCHIEDSRICHTER: Punkt für Reich!
+00:26.0  SCHIEDSRICHTER: Runde 3: Arzt!
+00:27.1  BLAU:           Mein Spezialist hat in zwei Tagen Zeit.
+00:31.1  ROT:            Mein nächster Termin? Irgendwann im Frühling …
+00:34.8  SCHIEDSRICHTER: Punkt für Reich!
+00:37.0  SCHIEDSRICHTER: Runde 4: Auto!
+00:38.1  BLAU:           Heute nehm ich mal den Sportwagen.
+00:42.1  ROT:            Ich warte seit 20 Minuten auf den Bus …
+00:45.8  SCHIEDSRICHTER: Punkt für Reich!
+00:48.0  SCHIEDSRICHTER: Runde 5: Schlaf!
+00:49.1  BLAU:           Ich lieg nachts wach und denk an die Firma.
+00:53.1  ROT:            Und ich schlaf wie ein Stein!
+00:56.8  SCHIEDSRICHTER: Punkt für Arm!
+00:59.0  SCHIEDSRICHTER: Runde 6: Freunde!
+01:00.1  BLAU:           Meine Freunde mögen vor allem mein Geld.
+01:04.1  ROT:            Meine Freunde bleiben – auch ohne Geld!
+01:07.8  SCHIEDSRICHTER: Punkt für Arm!
+01:09.8  SCHIEDSRICHTER: Abpfiff! Reich gewinnt 4 zu 2!
+01:13.2  ROT:            Danke für die Spende!
+01:14.5  SCHIEDSRICHTER: Reich, aber gestresst – oder arm, aber glücklich?
