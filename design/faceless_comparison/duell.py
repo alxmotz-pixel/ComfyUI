@@ -6,7 +6,8 @@
 Theme keys: "a" = blue side, "b" = red side, each {"name", "kostuem"?}; "hook" = opening line;
 "runden" = rounds {"titel", "a": side, "b": side, "sieger": "a" | "b" | null} where a side is
 {"text", "bilder": [prop/element names], "zahl"?: {"label", "wert", "vor"?, "nach"?}, "messer"?: {"label", "wert" 0-100}};
-"frage" = closing question; optional "kurz" = round indices for the short cut (--kurz). Every scene length is a
+"frage" = closing question; optional "ende" = {"sieger": pose, "verlierer": pose} for the final scene
+(default jubelnd/traurig; a happy loser sways instead of leaning over); optional "kurz" = round indices for the short cut (--kurz). Every scene length is a
 multiple of one beat at 120 BPM, and the last second fades back into the first frame so the video loops.
 Referee Pip whistles every round, shows the loser a yellow card and calls the final score. A side may set "emotion".
 """
@@ -258,13 +259,21 @@ class Duel:
         bottom, height = 1730, 760
         if win:
             go = t >= 0.6
-            hop = abs(math.sin(math.pi * (t - 0.6) / 0.5)) if go else 0.0
-            jump = 160 * hop
-            self.character(f, win, "jubelnd" if go else "neutral", x[win], bottom - jump, t, height,
+            end = self.th.get("ende", {})
+            pose_win, pose_lose = end.get("sieger", "jubelnd"), end.get("verlierer", "traurig")
+            wild = pose_win == "jubelnd"
+            period = 0.5 if wild else 1.0
+            hop = abs(math.sin(math.pi * (t - 0.6) / period)) if go else 0.0
+            jump = (160 if wild else 70) * hop
+            self.character(f, win, pose_win if go else "neutral", x[win], bottom - jump, t, height,
                            react=0.6, sy=1 + 0.06 * hop - 0.06 * (1 - hop) ** 6 if go else None)
-            lean = ease((t - 0.6) / 0.8)
-            self.character(f, lose, "traurig" if go else "neutral", x[lose] + (40 if lose == "b" else -40) * lean,
-                           bottom + 20 * lean, t, height, react=0.6, angle=(-18 if lose == "b" else 18) * lean)
+            if pose_lose == "traurig":
+                lean = ease((t - 0.6) / 0.8)
+                self.character(f, lose, pose_lose if go else "neutral", x[lose] + (40 if lose == "b" else -40) * lean,
+                               bottom + 20 * lean, t, height, react=0.6, angle=(-18 if lose == "b" else 18) * lean)
+            else:
+                sway = 7 * math.sin(2 * math.pi * (t - 0.6)) * ease((t - 0.6) / 0.3) if go else 0.0
+                self.character(f, lose, pose_lose if go else "neutral", x[lose], bottom, t, height, react=0.6, angle=sway)
             top = bottom - jump - height * (1 - self.TOP[win])
             pop(f, img("4_requisiten/pokal_%s" % SIDES[win][2], 260), x[win], top - 110, t - 0.9)
             if t > 0.9:

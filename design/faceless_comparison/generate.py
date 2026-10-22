@@ -270,6 +270,8 @@ BIRD_WING = "M0,0 C-62,24 -84,150 -62,270 Q-42,248 -30,280 Q-14,250 2,272 Q18,24
 # wing angle per pose (degrees clockwise, 0 = hanging straight down) and whether it is drawn in front of the body
 WING_POSE = {"neutral": (16, False), "proud": (40, False), "surprised": (150, False), "annoyed": (-72, True),
              "happy": (135, False), "sad": (4, False)}
+# poses that pair one face with another pose's wings: name -> (face, wings)
+MIXED = {"cheer_sad": ("sad", "happy"), "content": ("happy", "neutral")}
 
 
 def wing(s, x, y, angle, color, side, sx=1.0, sy=1.0):
@@ -299,7 +301,8 @@ def figure_a(expr, bg):
         s.tube("M%d,1180 L%d,1385" % (x, x), 16, GOLD)
         bird_foot(s, x, 1390, ((-36, 18), (0, 26), (36, 18)))
     feathers(s, 512, 440, (-20, 5, 30), 1.1, c["deep"])
-    angle, front = WING_POSE[expr]
+    expr, pose = MIXED.get(expr, (expr, expr))
+    angle, front = WING_POSE[pose]
     shoulders = ((362, 790, 1), (662, 790, -1))
     if not front:
         for x, y, side in shoulders:
@@ -333,7 +336,8 @@ def figure_b(expr, bg):
     for x in (450, 574):
         bird_foot(s, x, 1395, ((-40, 20), (0, 28), (40, 20)))
     feathers(s, 512, 830, (-30, 0, 30), 0.95, c["deep"])
-    angle, front = WING_POSE[expr]
+    expr, pose = MIXED.get(expr, (expr, expr))
+    angle, front = WING_POSE[pose]
     shoulders = ((248, 1040, 1), (776, 1040, -1))
     if not front:
         for x, y, side in shoulders:
@@ -1218,7 +1222,7 @@ def build():
         out["1_maskottchen/pip_frontal%s" % suffix] = pip_front(bg)
         out["1_maskottchen/pip_seitlich%s" % suffix] = pip_side(bg)
         for expr, name in (("neutral", "neutral"), ("proud", "stolz"), ("surprised", "ueberrascht"), ("annoyed", "genervt"),
-                           ("happy", "jubelnd"), ("sad", "traurig")):
+                           ("happy", "jubelnd"), ("sad", "traurig"), ("cheer_sad", "jubelnd_traurig"), ("content", "gluecklich")):
             out["2_figuren/figur_a_blau_%s%s" % (name, suffix)] = figure_a(expr, bg)
             out["2_figuren/figur_b_rot_%s%s" % (name, suffix)] = figure_b(expr, bg)
         out["2_figuren/figur_a_blau_seitlich%s" % suffix] = figure_side(True, bg)

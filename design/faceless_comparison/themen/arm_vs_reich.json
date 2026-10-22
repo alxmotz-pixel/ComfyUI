@@ -1,33 +1,185 @@
 {
-  "a": {"name": "REICH", "kostuem": "reich_figur_a"},
-  "b": {"name": "ARM", "kostuem": "arm_figur_b"},
+  "a": {
+    "name": "REICH",
+    "kostuem": "reich_figur_a"
+  },
+  "b": {
+    "name": "ARM",
+    "kostuem": "arm_figur_b"
+  },
   "hook": "Reich oder arm: Wer lebt wirklich besser?",
   "runden": [
-    {"titel": "URLAUB",
-     "a": {"text": "Spontan ans Meer fliegen", "bilder": ["flugzeug_blau", "weltkugel_blau"], "messer": {"label": "Urlaubs-Faktor", "wert": 95}, "emotion": "stolz"},
-     "b": {"text": "Urlaub auf Balkonien", "bilder": ["haus_rot"], "messer": {"label": "Urlaubs-Faktor", "wert": 25}, "emotion": "genervt"},
-     "sieger": "a"},
-    {"titel": "EINKAUFEN",
-     "a": {"text": "Kauft, ohne auf den Preis zu schauen", "bilder": ["geldbuendel_blau"], "zahl": {"label": "Wocheneinkauf z. B.", "wert": 400, "nach": " €"}, "emotion": "stolz"},
-     "b": {"text": "Jedes Angebot wird verglichen", "bilder": ["lupe_rot", "geldboerse_rot"], "zahl": {"label": "Wocheneinkauf z. B.", "wert": 60, "nach": " €"}, "emotion": "neutral"},
-     "sieger": "a"},
-    {"titel": "ARZT",
-     "a": {"text": "Termin beim Spezialisten in Tagen", "bilder": ["arztkoffer_blau"], "messer": {"label": "Tempo", "wert": 90}, "emotion": "stolz"},
-     "b": {"text": "Wochenlang auf einen Termin warten", "bilder": ["arztkoffer_rot", "stoppuhr_rot"], "messer": {"label": "Tempo", "wert": 30}, "emotion": "genervt"},
-     "sieger": "a"},
-    {"titel": "AUTO",
-     "a": {"text": "Sportwagen in der Garage", "bilder": ["auto_blau"], "messer": {"label": "Fahrspaß", "wert": 100}, "emotion": "stolz"},
-     "b": {"text": "Der Bus kommt mal wieder zu spät", "bilder": ["stoppuhr_rot"], "messer": {"label": "Fahrspaß", "wert": 20}, "emotion": "genervt"},
-     "sieger": "a"},
-    {"titel": "SCHLAF",
-     "a": {"text": "Liegt wach und denkt an die Firma", "bilder": ["bett_blau", "geldbuendel_blau"], "messer": {"label": "Ruhe", "wert": 30}, "emotion": "ueberrascht"},
-     "b": {"text": "Schläft wie ein Stein", "bilder": ["bett_rot"], "messer": {"label": "Ruhe", "wert": 90}, "emotion": "stolz"},
-     "sieger": "b"},
-    {"titel": "FREUNDE",
-     "a": {"text": "Freunde, solange das Geld da ist", "bilder": ["maske_blau"], "messer": {"label": "Echte Freunde", "wert": 20}, "emotion": "genervt"},
-     "b": {"text": "Freunde, die immer bleiben", "bilder": ["herz_rot"], "messer": {"label": "Echte Freunde", "wert": 100}, "emotion": "stolz"},
-     "sieger": "b"}
+    {
+      "titel": "URLAUB",
+      "a": {
+        "text": "Spontan ans Meer fliegen",
+        "bilder": [
+          "flugzeug_blau",
+          "weltkugel_blau"
+        ],
+        "messer": {
+          "label": "Urlaubs-Faktor",
+          "wert": 95
+        },
+        "emotion": "stolz"
+      },
+      "b": {
+        "text": "Urlaub auf Balkonien",
+        "bilder": [
+          "haus_rot"
+        ],
+        "messer": {
+          "label": "Urlaubs-Faktor",
+          "wert": 25
+        },
+        "emotion": "genervt"
+      },
+      "sieger": "a"
+    },
+    {
+      "titel": "EINKAUFEN",
+      "a": {
+        "text": "Kauft, ohne auf den Preis zu schauen",
+        "bilder": [
+          "geldbuendel_blau"
+        ],
+        "zahl": {
+          "label": "Wocheneinkauf z. B.",
+          "wert": 400,
+          "nach": " €"
+        },
+        "emotion": "stolz"
+      },
+      "b": {
+        "text": "Jedes Angebot wird verglichen",
+        "bilder": [
+          "lupe_rot",
+          "geldboerse_rot"
+        ],
+        "zahl": {
+          "label": "Wocheneinkauf z. B.",
+          "wert": 60,
+          "nach": " €"
+        },
+        "emotion": "neutral"
+      },
+      "sieger": "a"
+    },
+    {
+      "titel": "ARZT",
+      "a": {
+        "text": "Termin beim Spezialisten in Tagen",
+        "bilder": [
+          "arztkoffer_blau"
+        ],
+        "messer": {
+          "label": "Tempo",
+          "wert": 90
+        },
+        "emotion": "stolz"
+      },
+      "b": {
+        "text": "Wochenlang auf einen Termin warten",
+        "bilder": [
+          "arztkoffer_rot",
+          "stoppuhr_rot"
+        ],
+        "messer": {
+          "label": "Tempo",
+          "wert": 30
+        },
+        "emotion": "genervt"
+      },
+      "sieger": "a"
+    },
+    {
+      "titel": "AUTO",
+      "a": {
+        "text": "Sportwagen in der Garage",
+        "bilder": [
+          "auto_blau"
+        ],
+        "messer": {
+          "label": "Fahrspaß",
+          "wert": 100
+        },
+        "emotion": "stolz"
+      },
+      "b": {
+        "text": "Der Bus kommt mal wieder zu spät",
+        "bilder": [
+          "stoppuhr_rot"
+        ],
+        "messer": {
+          "label": "Fahrspaß",
+          "wert": 20
+        },
+        "emotion": "genervt"
+      },
+      "sieger": "a"
+    },
+    {
+      "titel": "SCHLAF",
+      "a": {
+        "text": "Liegt wach und denkt an die Firma",
+        "bilder": [
+          "bett_blau",
+          "geldbuendel_blau"
+        ],
+        "messer": {
+          "label": "Ruhe",
+          "wert": 30
+        },
+        "emotion": "ueberrascht"
+      },
+      "b": {
+        "text": "Schläft wie ein Stein",
+        "bilder": [
+          "bett_rot"
+        ],
+        "messer": {
+          "label": "Ruhe",
+          "wert": 90
+        },
+        "emotion": "stolz"
+      },
+      "sieger": "b"
+    },
+    {
+      "titel": "FREUNDE",
+      "a": {
+        "text": "Freunde, solange das Geld da ist",
+        "bilder": [
+          "maske_blau"
+        ],
+        "messer": {
+          "label": "Echte Freunde",
+          "wert": 20
+        },
+        "emotion": "genervt"
+      },
+      "b": {
+        "text": "Freunde, die immer bleiben",
+        "bilder": [
+          "herz_rot"
+        ],
+        "messer": {
+          "label": "Echte Freunde",
+          "wert": 100
+        },
+        "emotion": "stolz"
+      },
+      "sieger": "b"
+    }
   ],
-  "kurz": [0, 4, 5],
+  "kurz": [
+    0,
+    4,
+    5
+  ],
+  "ende": {
+    "sieger": "jubelnd_traurig",
+    "verlierer": "gluecklich"
+  },
   "frage": "Reich, aber gestresst – oder arm, aber glücklich?"
 }
