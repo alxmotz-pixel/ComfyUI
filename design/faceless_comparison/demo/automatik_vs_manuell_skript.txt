@@ -1,0 +1,30 @@
+00:00.0  SCHIEDSRICHTER: Automatik gegen Manuell! Wer schaltet hier wen aus?
+00:04.5  SCHIEDSRICHTER: Runde 1: Der Preis!
+00:07.6  BLAU:           Zweitausend Euro Aufpreis? Peanuts, mein Lieber.
+00:13.6  ROT:            Ich spar die Kohle und hab trotzdem mehr Spaß!
+00:17.3  SCHIEDSRICHTER: Punkt für Rocco!
+00:20.0  SCHIEDSRICHTER: Runde 2: Stau!
+00:23.1  BLAU:           Ich lehne mich einfach zurück. Perfekt wie immer.
+00:27.6  ROT:            Kuppeln, schalten, kuppeln … mein linkes Bein ist durch!
+00:32.8  SCHIEDSRICHTER: Punkt für Blaise!
+00:35.5  SCHIEDSRICHTER: Runde 3: Verbrauch!
+00:38.6  BLAU:           Meine Automatik schaltet effizienter, als du denkst.
+00:43.1  ROT:            Und ich fahr sparsam, mit Gefühl im Fuß!
+00:46.8  SCHIEDSRICHTER: Unentschieden! Beide sparsam.
+00:50.5  SCHIEDSRICHTER: Runde 4: Fahrspaß!
+00:53.6  BLAU:           Fahrspaß? Dafür hab ich doch Sitzheizung.
+00:58.6  ROT:            Runterschalten, Gas geben – DAS ist Fahren!
+01:02.8  SCHIEDSRICHTER: Punkt für Rocco!
+01:05.5  SCHIEDSRICHTER: Runde 5: Reparatur!
+01:08.6  BLAU:           Getriebeschaden? Zahlt die Versicherung … hoffentlich.
+01:14.1  ROT:            Neue Kupplung, kleiner Preis, weiter geht's!
+01:18.3  SCHIEDSRICHTER: Punkt für Rocco!
+01:21.0  SCHIEDSRICHTER: Runde 6: Die Zukunft!
+01:24.1  BLAU:           E-Autos schalten gar nicht mehr. Willkommen in der Zukunft, versteht sich.
+01:30.6  ROT:            Ich bin halt Old School … fragt sich nur, wie lange noch.
+01:35.8  SCHIEDSRICHTER: Punkt für Blaise!
+01:37.8  SCHIEDSRICHTER: Abpfiff! Manuell gewinnt 3 zu 2!
+01:41.1  ROT:            Läuft bei mir! Wer ist jetzt der Gewinner?
+01:48.5  BLAU:           Perfekt wie immer.
+01:50.6  SCHIEDSRICHTER: Tja … verschaltet.
+01:53.3  SCHIEDSRICHTER: Und du: Automatik oder Manuell? Schreib's in die Kommentare!
