@@ -24,11 +24,11 @@ python generate.py --chrome /pfad/zu/headless_shell   # SVG + PNG neu erzeugen
 - **Pip, Erzähler und Schiedsrichter** (`1_maskottchen`): eiförmiger, weiß-grauer Vogel; große runde schwarze Brille (Markenzeichen);
   drei dunkelgraue Schopffedern; gelber Schnabel; Fliege links blau / rechts rot; graue Flügel, gelbe Vogelfüße, rosa Wangen.
   Frontal und seitlich (dort mit Schwanzfedern). Im Video trägt er das Schiedsrichter-Hemd aus `6_kostueme`.
-- **Figur A, blau** (`2_figuren/figur_a_*`): groß und schlank, kapselförmiger Körper; dunkelblaue Tolle nach rechts;
-  weißer Kragen und dunkelblaue Krawatte; lange dünne Arme und Beine; graue Schuhe. Typ: Angeber.
-- **Figur B, rot** (`2_figuren/figur_b_*`): klein und kugelrund; dunkelrote Kappe mit Schirm nach rechts und weißem Knopf;
-  große, weit auseinanderstehende Augen; kurze kräftige Arme und Beine; graue Schuhe. Typ: Laut und direkt.
-- Emotionen je Figur: `neutral`, `stolz` (Hände in den Hüften), `ueberrascht` (Arme hoch), `genervt` (Arme steif).
+- **Figur A, blau** (`2_figuren/figur_a_*`): großer, schlanker Vogel; drei dunkelblaue Schopffedern; seitlicher gelber Schnabel;
+  heller Bauch; dunkelblaue Flügel; lange gelbe Beine. Typ: Angeber.
+- **Figur B, rot** (`2_figuren/figur_b_*`): kleiner, kugelrunder Vogel; drei dunkelrote Schopffedern; kurzer gelber Schnabel
+  nach vorn; großer heller Bauch; kurze gelbe Füße. Typ: laut und direkt.
+- Emotionen je Figur: `neutral`, `stolz` (Flügel gespreizt), `ueberrascht` (Flügel hoch), `genervt` (Flügel verschränkt); dazu `seitlich`.
 - Jede Datei gibt es mit neutralem Hintergrund `#E6E8EC` und als `_freigestellt` (transparent).
   Die Arme sind frei, das Gesicht ist immer sichtbar.
 

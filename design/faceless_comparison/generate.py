@@ -170,16 +170,6 @@ def face(s, cx, cy, gap, rx, ry, mouth_dy, mouth_w, expr, lid, brow_dy, look=(0,
     mouth(s, cx, cy + mouth_dy, mouth_w, "happy" if expr == "neutral" and mouth_w > 100 else expr)
 
 
-def mirror(pts):
-    return [(1024 - x, y) for x, y in pts]
-
-
-def arm(s, pts, width, color, hand_r):
-    (x0, y0), (x1, y1), (x2, y2) = pts
-    s.tube("M%g,%g Q%g,%g %g,%g" % (x0, y0, x1, y1, x2, y2), width, color)
-    s.add('<circle cx="%g" cy="%g" r="%g" fill="%s" stroke="%s" stroke-width="%d"/>' % (x2, y2, hand_r, s.ball(color), OUT, SW))
-
-
 # 1. Narrator mascot "Pip" --------------------------------------------------
 
 PIP_BODY = "#ECEEF2"
@@ -266,63 +256,123 @@ def pip_side(bg):
 
 # 2. Comparison figures ----------------------------------------------------
 
-POSES_A = {
-    "neutral":   [(382, 860), (330, 1000), (325, 1140)],
-    "proud":     [(382, 860), (255, 960), (368, 1070)],
-    "surprised": [(382, 850), (270, 740), (250, 560)],
-    "annoyed":   [(382, 860), (300, 975), (290, 1100)],
-}
-POSES_B = {
-    "neutral":   [(262, 1060), (205, 1150), (210, 1245)],
-    "proud":     [(262, 1060), (150, 1120), (255, 1205)],
-    "surprised": [(262, 1040), (175, 940), (190, 810)],
-    "annoyed":   [(262, 1060), (180, 1140), (165, 1225)],
-}
+BIRD_WING = "M0,0 C-62,24 -84,150 -62,270 Q-42,248 -30,280 Q-14,250 2,272 Q18,240 28,258 C34,160 32,60 0,0 Z"
+# wing angle per pose (degrees clockwise, 0 = hanging straight down) and whether it is drawn in front of the body
+WING_POSE = {"neutral": (16, False), "proud": (40, False), "surprised": (150, False), "annoyed": (-72, True)}
+
+
+def wing(s, x, y, angle, color, side, sx=1.0, sy=1.0):
+    s.add('<g transform="translate(%g %g) scale(%g 1) rotate(%g) scale(%g %g)">' % (x, y, side, angle, sx, sy))
+    s.add('<path d="%s" fill="%s" stroke="%s" stroke-width="%d" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>' % (BIRD_WING, s.ball(color), OUT, SW))
+    s.add('<path d="M-30,120 Q-36,190 -28,240 M-4,130 Q-6,200 4,240" fill="none" stroke="%s" stroke-width="5" opacity="0.6" vector-effect="non-scaling-stroke"/>' % mix(color, WHITE, 0.35))
+    s.add('</g>')
+
+
+def bird_face(s, c, cx, cy, gap, rx, ry, expr, brow_dy):
+    for side in (-1, 1):
+        ex = cx + side * gap / 2
+        eye(s, ex, cy, rx, ry, expr, c["dark"], side)
+        brow(s, ex, cy - ry - brow_dy, rx * 1.4, expr, side)
 
 
 def figure_a(expr, bg):
-    """Side A: tall, slim, a bit of a show-off. Blue."""
+    """Side A: tall, slim bird with a sideways beak and a proud crest. Blue."""
     c = BLUE
     s = Svg(1024, 1536, bg)
-    s.shadow(512, 1418, 200, 30)
-    for x0, x1 in ((470, 462), (554, 562)):
-        s.tube("M%d,1240 L%d,1385" % (x0, x1), 42, c["dark"])
-    s.ell(452, 1404, 54, 26, s.ball(G5))
-    s.ell(572, 1404, 54, 26, s.ball(G5))
-    s.path("M362,510 A150,150 0 0 1 662,510 L662,1130 A150,150 0 0 1 362,1130 Z", s.ball(c["base"]))
-    s.shine(420, 470, 46, 24)
-    s.path("M392,800 Q512,880 632,800 L632,842 Q512,922 392,842 Z", s.ball(WHITE))
-    s.path("M512,882 L488,912 L512,1020 L536,912 Z", s.ball(c["dark"]))
-    s.path("M372,478 C350,330 520,250 704,300 C636,320 650,362 656,446 C600,384 480,384 372,478 Z", s.ball(c["deep"]))
-    for x in (430, 594):
-        s.add('<ellipse cx="%d" cy="682" rx="30" ry="15" fill="%s" opacity="0.35"/>' % (x, BLUSH))
-    face(s, 512, 600, 116, 40, 50, 98, 84, expr, c["dark"], 34)
-    arm(s, POSES_A[expr], 36, mix(c["base"], c["dark"], 0.3), 30)
-    arm(s, mirror(POSES_A[expr]), 36, mix(c["base"], c["dark"], 0.3), 30)
+    s.shadow(512, 1420, 190, 26)
+    for x in (472, 552):
+        s.tube("M%d,1180 L%d,1385" % (x, x), 16, GOLD)
+        bird_foot(s, x, 1390, ((-36, 18), (0, 26), (36, 18)))
+    feathers(s, 512, 440, (-20, 5, 30), 1.1, c["deep"])
+    angle, front = WING_POSE[expr]
+    shoulders = ((362, 790, 1), (662, 790, -1))
+    if not front:
+        for x, y, side in shoulders:
+            wing(s, x, y, angle, c["dark"], side)
+    s.path("M512,430 C640,430 680,620 680,860 C680,1100 620,1220 512,1220 C404,1220 344,1100 344,860 C344,620 384,430 512,430 Z", s.ball(c["base"]))
+    s.add('<ellipse cx="512" cy="980" rx="110" ry="190" fill="#FFF" opacity="0.35"/>')
+    s.shine(430, 540, 40, 20)
+    for x in (432, 592):
+        s.add('<ellipse cx="%d" cy="700" rx="28" ry="14" fill="%s" opacity="0.35"/>' % (x, BLUSH))
+    bird_face(s, c, 512, 620, 124, 44, 54, expr, 26)
+    tilt = {"proud": -10, "annoyed": 8}.get(expr, 0)
+    s.add('<g transform="rotate(%d 490 720)">' % tilt)
+    if expr == "surprised":
+        s.path("M488,735 L600,768 L488,782 Z", s.ball(mix(GOLD, RED["dark"], 0.35)))
+        s.path("M488,690 L626,708 L488,728 Z", s.ball(GOLD))
+    else:
+        s.path("M488,690 L626,722 L488,752 Z", s.ball(GOLD))
+        s.line("M490,722 L560,722", 5, mix(GOLD, OUT, 0.4))
+    s.add('</g>')
+    if front:
+        for x, y, side in shoulders:
+            wing(s, x, y, angle, c["dark"], side)
     return s
 
 
 def figure_b(expr, bg):
-    """Side B: short, wide, loud. Red, backwards-tilted cap."""
+    """Side B: short, round bird, loud and direct. Red."""
     c = RED
     s = Svg(1024, 1536, bg)
-    s.shadow(512, 1418, 300, 36)
-    for x in (440, 584):
-        s.tube("M%d,1320 L%d,1385" % (x, x), 56, c["dark"])
-    s.ell(428, 1406, 66, 28, s.ball(G5))
-    s.ell(596, 1406, 66, 28, s.ball(G5))
-    arm(s, POSES_B[expr], 58, mix(c["base"], c["dark"], 0.25), 40)
-    arm(s, mirror(POSES_B[expr]), 58, mix(c["base"], c["dark"], 0.25), 40)
-    s.ell(512, 1080, 282, 272, s.ball(c["base"]))
-    s.add('<ellipse cx="512" cy="1250" rx="160" ry="70" fill="#FFF" opacity="0.25"/>')
-    s.shine(380, 930, 60, 30)
-    s.path("M676,872 Q800,858 840,898 Q770,926 676,908 Z", s.ball(c["dark"]))
-    s.path("M318,890 C318,742 706,742 706,890 Q512,850 318,890 Z", s.ball(mix(c["base"], c["dark"], 0.55)))
-    s.line("M512,770 L512,878", 6, mix(c["dark"], OUT, 0.3))
-    s.add('<circle cx="512" cy="768" r="16" fill="#FFF" stroke="%s" stroke-width="%d"/>' % (OUT, SW))
+    s.shadow(512, 1420, 290, 32)
+    for x in (450, 574):
+        bird_foot(s, x, 1395, ((-40, 20), (0, 28), (40, 20)))
+    feathers(s, 512, 830, (-30, 0, 30), 0.95, c["deep"])
+    angle, front = WING_POSE[expr]
+    shoulders = ((248, 1040, 1), (776, 1040, -1))
+    if not front:
+        for x, y, side in shoulders:
+            wing(s, x, y, angle, c["dark"], side, 1.25, 0.85)
+    s.ell(512, 1100, 290, 280, s.ball(c["base"]))
+    s.add('<ellipse cx="512" cy="1215" rx="180" ry="125" fill="#FFF" opacity="0.35"/>')
+    s.shine(380, 920, 60, 28)
     for x in (360, 664):
-        s.add('<ellipse cx="%d" cy="1080" rx="44" ry="22" fill="%s" opacity="0.4"/>' % (x, BLUSH))
-    face(s, 512, 990, 184, 56, 64, 130, 150, expr, c["dark"], 34)
+        s.add('<ellipse cx="%d" cy="1100" rx="40" ry="20" fill="%s" opacity="0.4"/>' % (x, BLUSH))
+    bird_face(s, c, 512, 1015, 190, 58, 66, expr, 30)
+    if expr == "surprised":
+        s.path("M478,1120 L546,1120 Q540,1170 512,1190 Q484,1170 478,1120 Z", s.ball(mix(GOLD, RED["dark"], 0.35)))
+        s.path("M466,1098 Q512,1076 558,1098 Q540,1122 512,1130 Q484,1122 466,1098 Z", s.ball(GOLD))
+    else:
+        tilt = {"proud": -8, "annoyed": 6}.get(expr, 0)
+        s.add('<g transform="rotate(%d 512 1120)">' % tilt)
+        s.path("M466,1098 Q512,1076 558,1098 L512,1166 Z", s.ball(GOLD))
+        s.add('</g>')
+    if front:
+        for x, y, side in ((300, 1190, 1), (724, 1190, -1)):
+            wing(s, x, y, angle, c["dark"], side, 1.1, 0.85)
+    return s
+
+
+def figure_side(tall, bg):
+    """Side view (facing right) of the blue (tall) or red (round) bird."""
+    c = BLUE if tall else RED
+    s = Svg(1024, 1536, bg)
+    if tall:
+        s.shadow(530, 1420, 190, 26)
+        s.tube("M500,1180 L500,1385", 16, GOLD)
+        bird_foot(s, 500, 1390, ((40, 20), (52, 30), (-30, 22)))
+        feathers(s, 380, 1150, (-70, -95, -120), 1.0, c["deep"])
+        feathers(s, 500, 440, (-40, -15, 10), 1.1, c["deep"])
+        s.path("M512,430 C640,430 680,620 680,860 C680,1100 620,1220 512,1220 C404,1220 344,1100 344,860 C344,620 384,430 512,430 Z", s.ball(c["base"]))
+        s.add('<ellipse cx="590" cy="980" rx="70" ry="180" fill="#FFF" opacity="0.35"/>')
+        s.tube("M560,1180 L560,1385", 16, GOLD)
+        bird_foot(s, 560, 1390, ((40, 20), (52, 30), (-30, 22)))
+        eye(s, 590, 620, 38, 54, "proud", c["dark"], 1, look=(1, 0))
+        brow(s, 590, 620 - 54 - 26, 54, "proud", 1)
+        s.path("M650,690 L780,720 L650,752 Z", s.ball(GOLD))
+        wing(s, 500, 790, 8, c["dark"], 1)
+    else:
+        s.shadow(520, 1420, 290, 32)
+        bird_foot(s, 470, 1395, ((44, 20), (56, 30), (-30, 22)))
+        feathers(s, 240, 1120, (-70, -95, -120), 0.95, c["deep"])
+        feathers(s, 500, 830, (-40, -15, 10), 0.95, c["deep"])
+        s.ell(512, 1100, 290, 280, s.ball(c["base"]))
+        s.add('<ellipse cx="610" cy="1215" rx="130" ry="115" fill="#FFF" opacity="0.35"/>')
+        bird_foot(s, 570, 1398, ((44, 20), (56, 30), (-30, 22)))
+        eye(s, 660, 1010, 48, 66, "neutral", c["dark"], 1, look=(1, 0))
+        brow(s, 660, 1010 - 66 - 30, 66, "neutral", 1)
+        s.path("M778,1080 L872,1112 L778,1146 Z", s.ball(GOLD))
+        wing(s, 480, 1050, 12, c["dark"], 1, 1.25, 0.85)
     return s
 
 
@@ -1120,6 +1170,8 @@ def build():
         for expr, name in (("neutral", "neutral"), ("proud", "stolz"), ("surprised", "ueberrascht"), ("annoyed", "genervt")):
             out["2_figuren/figur_a_blau_%s%s" % (name, suffix)] = figure_a(expr, bg)
             out["2_figuren/figur_b_rot_%s%s" % (name, suffix)] = figure_b(expr, bg)
+        out["2_figuren/figur_a_blau_seitlich%s" % suffix] = figure_side(True, bg)
+        out["2_figuren/figur_b_rot_seitlich%s" % suffix] = figure_side(False, bg)
     out["3_hintergruende/bg1_geteilte_buehne"] = bg_split()
     out["3_hintergruende/bg2_studio_podest"] = bg_podium()
     out["3_hintergruende/bg3_stadt_skyline_tag"] = bg_city()
