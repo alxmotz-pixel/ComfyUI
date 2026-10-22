@@ -609,10 +609,96 @@ def prop_basketball(s, c):
     s.shine(400, 360, 70, 32)
 
 
+def prop_wallet(s, c):
+    s.shadow(512, 800, 300, 32)
+    s.add('<rect x="300" y="300" width="260" height="140" rx="12" fill="%s" stroke="%s" stroke-width="%d" transform="rotate(-10 430 370)"/>' % (s.ball(mix(c["light"], WHITE, 0.5)), OUT, SW))
+    s.add('<rect x="232" y="380" width="560" height="380" rx="60" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(c["base"]), OUT, SW))
+    s.path("M232,470 Q232,380 322,380 L702,380 Q792,380 792,470 L792,560 L232,560 Z", s.ball(c["dark"]))
+    s.add('<circle cx="700" cy="560" r="34" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G3), OUT, SW))
+    s.add('<rect x="262" y="590" width="400" height="140" rx="30" fill="none" stroke="#FFF" stroke-width="6" stroke-dasharray="16 12" opacity="0.6"/>')
+    s.shine(330, 420, 50, 18)
+
+
+def prop_gear_stick(s, c):
+    s.shadow(512, 840, 280, 30)
+    s.add('<rect x="262" y="640" width="500" height="180" rx="40" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G5), OUT, SW))
+    s.line("M352,680 L352,780 M512,680 L512,780 M672,680 L672,780 M352,730 L672,730", 16, "#1E2126")
+    s.path("M452,700 L572,700 L552,600 L472,600 Z", s.ball(G4))
+    s.tube("M512,610 L512,380", 30, G3)
+    s.add('<circle cx="512" cy="320" r="96" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(c["base"]), OUT, SW))
+    s.line("M472,300 L552,300 M512,260 L512,340", 8, "#FFF", 'opacity="0.7"')
+    s.shine(470, 270, 34, 16)
+
+
+def prop_selector(s, c):
+    s.shadow(512, 880, 260, 30)
+    s.add('<rect x="302" y="280" width="420" height="580" rx="60" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G5), OUT, SW))
+    for i, ch in enumerate("PRND"):
+        s.add('<text x="410" y="%d" font-family="Inter, sans-serif" font-weight="800" font-size="84" fill="%s" text-anchor="middle">%s</text>'
+              % (410 + i * 125, "#FFF" if ch == "D" else G4, ch))
+    s.line("M590,380 L590,780", 22, "#1E2126")
+    s.add('<rect x="520" y="700" width="160" height="110" rx="34" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(c["base"]), OUT, SW))
+    s.add('<rect x="572" y="676" width="56" height="30" rx="12" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G3), OUT, SW))
+    s.shine(560, 725, 30, 12)
+
+
+def prop_pedals(s, c, n):
+    s.shadow(512, 860, 320, 30)
+    s.path("M212,840 L812,840 L752,560 L272,560 Z", s.ball(G4))
+    pads = ((340, 150, 180), (512, 150, 180), (684, 110, 230)) if n == 3 else ((430, 220, 180), (650, 120, 240))
+    for x, w, h in pads:
+        s.tube("M%d,250 Q%d,420 %d,%d" % (x, x - 20, x, 640 - h / 2), 26, G5)
+        s.add('<rect x="%g" y="%g" width="%d" height="%d" rx="24" fill="%s" stroke="%s" stroke-width="%d"/>' % (x - w / 2, 640 - h / 2, w, h, s.ball(c["base"]), OUT, SW))
+        for k in range(3):
+            y = 640 - h / 2 + 40 + k * (h - 80) / 2
+            s.line("M%g,%g L%g,%g" % (x - w / 2 + 24, y, x + w / 2 - 24, y), 8, c["dark"])
+
+
+def prop_fuel_pump(s, c):
+    s.shadow(512, 850, 260, 30)
+    s.tube("M642,520 C760,520 780,640 760,760 L740,800", 26, G5)
+    s.add('<rect x="700" y="770" width="80" height="60" rx="14" fill="%s" stroke="%s" stroke-width="%d" transform="rotate(20 740 800)"/>' % (s.ball(G3), OUT, SW))
+    s.add('<rect x="342" y="240" width="300" height="580" rx="44" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(c["base"]), OUT, SW))
+    s.add('<rect x="382" y="300" width="220" height="150" rx="20" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(WHITE), OUT, SW))
+    s.line("M412,350 L572,350 M412,400 L520,400", 14, G4)
+    s.add('<rect x="640" y="470" width="50" height="90" rx="12" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G3), OUT, SW))
+    s.add('<rect x="312" y="800" width="360" height="50" rx="16" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(G5), OUT, SW))
+    s.shine(400, 520, 30, 60, 0)
+
+
+def prop_wrench(s, c):
+    s.shadow(512, 860, 280, 30)
+    mid = s.uid("wrench")
+    s.defs[mid] = ('<mask id="%s"><rect width="1024" height="1024" fill="#FFF"/>'
+                   '<rect x="640" y="250" width="90" height="140" fill="#000" transform="rotate(45 685 320)"/>'
+                   '<circle cx="330" cy="700" r="34" fill="#000"/></mask>' % mid)
+    s.add('<g mask="url(#%s)">' % mid)
+    s.tube("M360,670 L660,370", 74, c["base"])
+    s.add('<circle cx="690" cy="340" r="110" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(c["base"]), OUT, SW))
+    s.add('<circle cx="330" cy="700" r="80" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(c["base"]), OUT, SW))
+    s.add('</g>')
+    s.add('<rect x="640" y="250" width="90" height="140" fill="none" stroke="%s" stroke-width="%d" transform="rotate(45 685 320)" mask="url(#%s)"/>' % (OUT, SW, mid))
+    s.add('<circle cx="330" cy="700" r="34" fill="none" stroke="%s" stroke-width="%d"/>' % (OUT, SW))
+    s.line("M420,580 L600,400", 10, "#FFF", 'opacity="0.45"')
+
+
+def prop_charger(s, c):
+    s.shadow(560, 870, 260, 30)
+    s.tube("M512,560 C512,720 640,700 700,860", 40, G5)
+    for x in (450, 574):
+        s.add('<rect x="%d" y="220" width="36" height="90" rx="10" fill="%s" stroke="%s" stroke-width="%d"/>' % (x - 18, s.ball(G3), OUT, SW))
+    s.add('<rect x="392" y="290" width="240" height="290" rx="60" fill="%s" stroke="%s" stroke-width="%d"/>' % (s.ball(c["base"]), OUT, SW))
+    s.add('<path d="M530,330 L460,450 L512,450 L488,540 L566,410 L514,410 Z" fill="#FFF" stroke="%s" stroke-width="5" stroke-linejoin="round"/>' % OUT)
+    s.shine(440, 340, 26, 14)
+
+
 PROPS = {"geldbuendel": prop_money, "waage": prop_scale, "pokal": prop_trophy, "weltkugel": prop_globe,
          "stoppuhr": prop_stopwatch, "haus": prop_house, "auto": prop_car, "lupe": prop_magnifier,
          "arztkoffer": prop_doctor_bag, "maske": prop_mask,
-         "sneaker": prop_sneaker, "basketball": prop_basketball}
+         "sneaker": prop_sneaker, "basketball": prop_basketball,
+         "geldboerse": prop_wallet, "schaltknueppel": prop_gear_stick, "waehlhebel": prop_selector,
+         "pedale_2": lambda s, c: prop_pedals(s, c, 2), "pedale_3": lambda s, c: prop_pedals(s, c, 3),
+         "zapfsaeule": prop_fuel_pump, "werkzeug": prop_wrench, "ladestecker": prop_charger}
 
 
 # 5. Comparison elements --------------------------------------------------
@@ -770,6 +856,29 @@ def costume_sport_b():
     return s
 
 
+def costume_driver_a():
+    """Automatik: relaxed, sunglasses pushed up on the quiff."""
+    s = Svg(1024, 1536)
+    s.add('<g transform="rotate(-6 512 400)">')
+    for x in (450, 574):
+        s.add('<rect x="%d" y="370" width="104" height="62" rx="28" fill="%s" stroke="%s" stroke-width="%d"/>' % (x - 52, s.ball("#3A3F47"), OUT, SW))
+        s.line("M%d,386 L%d,386" % (x - 30, x - 6), 6, "#FFF", 'opacity="0.6"')
+    s.line("M502,396 Q512,384 522,396", 10)
+    s.add('</g>')
+    return s
+
+
+def costume_racer_b():
+    """Manuell: chequered flag patch on the cap."""
+    s = Svg(1024, 1536)
+    s.line("M470,880 L470,790", 6)
+    for i in range(3):
+        for j in range(4):
+            s.add('<rect x="%d" y="%d" width="22" height="20" fill="%s"/>' % (470 + j * 22, 790 + i * 20, OUT if (i + j) % 2 else "#FFF"))
+    s.add('<rect x="470" y="790" width="88" height="60" fill="none" stroke="%s" stroke-width="5"/>' % OUT)
+    return s
+
+
 def bow_tie(s):
     s.path("M512,1110 L432,1068 Q410,1110 432,1152 Z", s.ball(BLUE["base"]))
     s.path("M512,1110 L592,1068 Q614,1110 592,1152 Z", s.ball(RED["base"]))
@@ -852,6 +961,8 @@ def build():
     out["6_kostueme/pip_schiedsrichter"] = costume_referee(False)
     out["6_kostueme/pip_schiedsrichter_pfeift"] = costume_referee(True)
     out["7_kanal/vergleichvogel_profilbild"] = channel_avatar()
+    out["6_kostueme/automatik_figur_a"] = costume_driver_a()
+    out["6_kostueme/manuell_figur_b"] = costume_racer_b()
     for name, fn in PROPS.items():
         for cname, c in (("blau", BLUE), ("rot", RED)):
             s = Svg(1024, 1024)

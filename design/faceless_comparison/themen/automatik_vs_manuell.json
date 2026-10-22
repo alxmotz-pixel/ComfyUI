@@ -1,0 +1,32 @@
+{
+  "a": {"name": "AUTOMATIK", "kostuem": "automatik_figur_a"},
+  "b": {"name": "MANUELL", "kostuem": "manuell_figur_b"},
+  "hook": "Automatik oder Manuell?",
+  "runden": [
+    {"titel": "PREIS",
+     "a": {"text": "Beim Neuwagen meist mit Aufpreis", "bilder": ["geldboerse_blau"], "zahl": {"label": "Aufpreis oft rund", "wert": 2000, "vor": "+", "nach": " €"}},
+     "b": {"text": "Meist die günstigere Variante", "bilder": ["geldboerse_rot"], "zahl": {"label": "Aufpreis", "wert": 0, "nach": " €"}},
+     "sieger": "b"},
+    {"titel": "STAU",
+     "a": {"text": "Bremse lösen, rollen, fertig", "bilder": ["pedale_2_blau"], "messer": {"label": "Komfort", "wert": 95}},
+     "b": {"text": "Ständig kuppeln und schalten", "bilder": ["pedale_3_rot"], "messer": {"label": "Komfort", "wert": 35}},
+     "sieger": "a"},
+    {"titel": "VERBRAUCH",
+     "a": {"text": "Moderne Automatik schaltet effizient", "bilder": ["zapfsaeule_blau"], "messer": {"label": "Sparsamkeit", "wert": 78}},
+     "b": {"text": "Sparsam mit gutem Fahrstil", "bilder": ["zapfsaeule_rot"], "messer": {"label": "Sparsamkeit", "wert": 78}},
+     "sieger": null},
+    {"titel": "FAHRSPASS",
+     "a": {"text": "Fährt sich fast von allein", "bilder": ["waehlhebel_blau"], "messer": {"label": "Kontrolle", "wert": 40}},
+     "b": {"text": "Jeder Gang unter Kontrolle", "bilder": ["schaltknueppel_rot"], "messer": {"label": "Kontrolle", "wert": 95}},
+     "sieger": "b"},
+    {"titel": "REPARATUR",
+     "a": {"text": "Getriebeschaden wird teuer", "bilder": ["werkzeug_blau", "geldboerse_blau"], "messer": {"label": "Kosten-Risiko", "wert": 85}},
+     "b": {"text": "Neue Kupplung ist günstiger", "bilder": ["werkzeug_rot"], "messer": {"label": "Kosten-Risiko", "wert": 40}},
+     "sieger": "b"},
+    {"titel": "ZUKUNFT",
+     "a": {"text": "E-Autos fahren ohne Schaltung", "bilder": ["ladestecker_blau"], "messer": {"label": "Zukunft", "wert": 95}},
+     "b": {"text": "Wird immer seltener angeboten", "bilder": ["schaltknueppel_rot", "pfeil_runter_rot"], "messer": {"label": "Zukunft", "wert": 25}},
+     "sieger": "a"}
+  ],
+  "frage": "Was fährst du: Automatik oder Manuell?"
+}

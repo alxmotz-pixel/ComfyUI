@@ -80,3 +80,13 @@ Ablauf: Intro mit VS und Zoom auf die Fokus-Seite (1,8 s), 3× besser im Vollbil
 Am Ende pfeift Pip als Schiedsrichter (`6_kostueme/pip_schiedsrichter*`, Pfiff als Ton im Video) und stellt die `frage`.
 Bei Marken nur die Namen als Text und eigene Anspielungen statt Logos verwenden (Flügel für Nike, Bergspitze für Adidas
 in `sport_figur_*`), keine Nachbauten von Swoosh oder drei Streifen.
+
+## Runden-Duell (60–90 s)
+
+```
+python duell.py themen/automatik_vs_manuell.json   # -> demo/automatik_vs_manuell.mp4
+```
+
+6 Runden: Pip pfeift die Runde an, Seite A im Vollbild, Wisch-Übergang ohne Text, Seite B im Vollbild,
+Urteil mit gelber Karte für den Verlierer und Punktestand. Zum Schluss Endstand, Pokal und `frage`.
+Pro Seite und Runde: `text`, `bilder`, optional `zahl` (zählt hoch) oder `messer` (Tacho 0–100); `sieger` = `a`, `b` oder `null`.
