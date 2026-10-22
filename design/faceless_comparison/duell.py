@@ -11,6 +11,11 @@ Theme keys: "a" = blue side, "b" = red side, each {"name", "kostuem"?}; "hook" =
 with the cup, the happy loser walks over, slaps his head, takes the cup and gets a yellow card; optional "kurz" = round indices for the short cut (--kurz). Every scene length is a
 multiple of one beat at 120 BPM, and the last second fades back into the first frame so the video loops.
 Referee Pip whistles every round, shows the loser a yellow card and calls the final score. A side may set "emotion".
+
+Dialogue: three speakers. Each side's "text" is that bird's own line, shown in a speech bubble in its colour.
+The referee says the hook, every round's "ansage" (default "Runde N: TITEL!"), the verdict, "ende.abpfiff" and the
+closing question; with pokal_klau the thief says "ende.spruch". All lines with their start times are written to
+demo/<theme>_skript.txt for recording the voices later.
 """
 
 import json
@@ -27,7 +32,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 from demo_clip import (BLUE, FPS, H, OUT, RED, SIDES, SOUNDS, SR, W, clamp, ease, ease_out_back, font, img, pill,
-                       pop, put, textbox, whistle)
+                       pop, put, whistle)
 
 YELLOW = (255, 200, 61)
 # scene lengths in seconds, all multiples of 0.5 s (one beat at 120 BPM)
@@ -101,6 +106,34 @@ def gauge(label, value, color):
     return im
 
 
+SPEAKERS = {"pip": ("SCHIEDSRICHTER", OUT), "a": ("BLAU", BLUE), "b": ("ROT", RED)}
+
+
+def speech(text, speaker, tail=0.5, size=56, max_w=820):
+    """Speech bubble with the speaker's colour as outline; `tail` = tail position across the bubble (0..1)."""
+    f = font(size)
+    lines = [""]
+    for word in text.split():
+        trial = (lines[-1] + " " + word).strip()
+        if f.getlength(trial) > max_w and lines[-1]:
+            lines.append(word)
+        else:
+            lines[-1] = trial
+    lh = round(size * 1.25)
+    w = round(max(f.getlength(line) for line in lines)) + 80
+    h = lh * len(lines) + 56
+    color = SPEAKERS[speaker][1]
+    im = Image.new("RGBA", (w + 20, h + 60))
+    d = ImageDraw.Draw(im)
+    tx = 10 + max(50, min(w - 50, w * tail))
+    d.polygon([(tx - 30, h + 4), (tx + 30, h + 4), (tx + 10 * (1 if tail > 0.5 else -1), h + 54)], fill="white", outline=color, width=10)
+    d.rounded_rectangle([10, 10, w + 10, h + 10], radius=44, fill="white", outline=color, width=10)
+    d.polygon([(tx - 20, h), (tx + 20, h), (tx + 6 * (1 if tail > 0.5 else -1), h + 36)], fill="white")
+    for i, line in enumerate(lines):
+        d.text((w / 2 + 10, 38 + lh * i + lh / 2), line, font=f, fill=OUT, anchor="mm")
+    return im
+
+
 def counter(label, value, pre, post, target):
     step = 100 if target >= 1000 else 10 if target >= 100 else 1
     value = round(value / step) * step
@@ -125,11 +158,22 @@ class Duel:
             sa, sb = self.score[-1]
             self.score.append((sa + (r["sieger"] == "a"), sb + (r["sieger"] == "b")))
         self.boards = {}
-        self.hook = textbox(th["hook"], 76, 900)
-        self.question = textbox(th["frage"], 64, 880, tail=True)
+        self.hook = speech(th["hook"], "pip", 0.5, 72, 900)
+        self.question = speech(th["frage"], "pip", 0.5, 62, 880)
+        end = th.get("ende", {})
+        self.ansagen = [r.get("ansage", "Runde %d: %s!" % (i + 1, r["titel"].capitalize())) for i, r in enumerate(self.rounds)]
+        self.urteile = ["Punkt für %s!" % th[r["sieger"]]["name"].capitalize() if r["sieger"] else "Unentschieden!" for r in self.rounds]
+        self.urteil_bubbles = [speech(u, "pip", 0.5, 52) for u in self.urteile]
+        sa, sb = self.score[-1]
+        winner = "a" if sa > sb else "b" if sb > sa else None
+        self.abpfiff = end.get("abpfiff", "Abpfiff! %s gewinnt %d zu %d!" % (th[winner]["name"].capitalize(), max(sa, sb), min(sa, sb)) if winner else "Abpfiff! Unentschieden!")
+        self.abpfiff_bubble = speech(self.abpfiff, "pip", 0.5, 52)
+        self.thief = "b" if winner == "a" else "a"
+        self.spruch = end.get("spruch")
+        self.spruch_bubble = self.spruch and speech(self.spruch, self.thief, 0.75 if self.thief == "b" else 0.25, 60, 600)
         self.vs = img("5_elemente/vs", 460)
         self.labels = {k: pill(th[k]["name"], SIDES[k][1]) for k in SIDES}
-        self.texts = [{k: textbox(r[k]["text"], 56, 760) for k in SIDES} for r in self.rounds]
+        self.texts = [{k: speech(r[k]["text"], k, 0.25 if k == "a" else 0.75, 56, 800) for k in SIDES} for r in self.rounds]
         self.titles = [(pill("RUNDE %d" % (i + 1), OUT, 54), outlined(r["titel"], 150)) for i, r in enumerate(self.rounds)]
         self.plus = outlined("+1", 150, (255, 200, 61))
         self.draw = pill("UNENTSCHIEDEN", OUT, 60)
@@ -252,6 +296,7 @@ class Duel:
             pop(f, self.plus, SIDES[win][3], 930, t - 0.4)
         else:
             pop(f, self.draw, W / 2, 900, t - 0.3)
+        pop(f, self.urteil_bubbles[i], W / 2, 1180, t - 0.3)
         put(f, self.board(*self.score[i + (1 if after else 0)]), W / 2, 90, 1 + 0.12 * math.sin(clamp((t - 0.5) / 0.3) * math.pi))
         return f
 
@@ -298,6 +343,8 @@ class Duel:
                 self.character(f, k, "ueberrascht", x[k], bottom, t, height)
         self.pip(f, W / 2, 1800, t, 520, blowing=0.2 <= t < 0.9)
         put(f, self.board(sa, sb, 1.0), W / 2, 260, 1 + 0.12 * math.sin(clamp((t - 0.3) / 0.3) * math.pi))
+        if 0.3 <= t < self.T["frage"]:
+            pop(f, self.abpfiff_bubble, W / 2, 1150, t - 0.3)
         pop(f, self.question, W / 2, 560, t - self.T["frage"])
         return f
 
@@ -387,34 +434,44 @@ class Duel:
                     y = cy + math.sin(a) * dist * k * 0.8 + 700 * k * k
                     d.ellipse([x - r, y - r, x + r, y + r], fill=col, outline=OUT, width=3)
         put(f, self.board(sa, sb, 1.0), W / 2, 260, 1 + 0.12 * math.sin(clamp((t - 0.3) / 0.3) * math.pi))
+        if 0.3 <= t < K["hin"]:
+            pop(f, self.abpfiff_bubble, W / 2, 1020, t - 0.3)
+        if self.spruch_bubble and hit + 0.5 <= t < K["frage"]:
+            pop(f, self.spruch_bubble, min(max(tx, 360), W - 360), 900 - ty, t - hit - 0.5)
         pop(f, self.question, W / 2, 560, t - K["frage"])
         return f
 
     def final_scene(self):
+        """(scene, duration, sounds, lines) for the last scene."""
         if self.th.get("ende", {}).get("pokal_klau"):
             K = self.KLAU
-            sounds = [(0.2, "whistle"), (0.7, "ding"), (K["hin"], "whoosh"), (K["klaps"] + 0.15, "klatsch"),
+            hit = K["klaps"] + 0.15
+            sounds = [(0.2, "whistle"), (0.7, "ding"), (K["hin"], "whoosh"), (hit, "klatsch"),
                       (K["klaps"] + 0.25, "pfiff"), (K["klaps"] + 0.2, "whoosh"), (K["jubel"], "ding"), (K["frage"], "pop")]
-            return self.finale_klau, K["laenge"], sounds
-        return self.finale, self.T["finale"], [(0.2, "whistle"), (0.7, "pop"), (1.3, "ding"), (self.T["frage"], "pop")]
+            lines = [(0.3, "pip", self.abpfiff)] + ([(hit + 0.5, self.thief, self.spruch)] if self.spruch else []) + [(K["frage"], "pip", self.th["frage"])]
+            return self.finale_klau, K["laenge"], sounds, lines
+        return (self.finale, self.T["finale"], [(0.2, "whistle"), (0.7, "pop"), (1.3, "ding"), (self.T["frage"], "pop")],
+                [(0.3, "pip", self.abpfiff), (self.T["frage"], "pip", self.th["frage"])])
 
     def loop(self, t):
         """Fade the last finale frame back into the first intro frame so the end flows into the start."""
-        scene, dur, _ = self.final_scene()
+        scene, dur, _, _ = self.final_scene()
         return Image.blend(scene(dur), self.intro(0.0), ease(t / self.T["loop"]))
 
     def timeline(self):
+        """(scene, duration, [(offset, sound)], [(offset, speaker, line)])"""
         T = self.T
-        tl = [(self.intro, T["intro"], [(0.0, "whoosh"), (0.0, "pop")])]
-        for i in range(len(self.rounds)):
-            tl.append((lambda t, i=i: self.round_intro(i, t), T["runde"], [(0.1, "pfiff"), (0.15, "pop")]))
+        tl = [(self.intro, T["intro"], [(0.0, "whoosh"), (0.0, "pop")], [(0.0, "pip", self.th["hook"])])]
+        for i, r in enumerate(self.rounds):
+            tl.append((lambda t, i=i: self.round_intro(i, t), T["runde"], [(0.1, "pfiff"), (0.15, "pop")], [(0.5, "pip", self.ansagen[i])]))
             side_sounds = [(0.1, "pop"), (0.3, "pop"), (0.5, "pop")]
-            tl.append((lambda t, i=i: self.side(i, "a", t), T["seite"], side_sounds))
-            tl.append((lambda t, i=i: self.wipe(i, t), T["wisch"], [(0.0, "whoosh")]))
-            tl.append((lambda t, i=i: self.side(i, "b", t), T["seite"], side_sounds))
-            tl.append((lambda t, i=i: self.verdict(i, t), T["urteil"], [(0.3, "pop"), (0.45, "ding" if self.rounds[i]["sieger"] else "pop")]))
+            tl.append((lambda t, i=i: self.side(i, "a", t), T["seite"], side_sounds, [(0.1, "a", r["a"]["text"])]))
+            tl.append((lambda t, i=i: self.wipe(i, t), T["wisch"], [(0.0, "whoosh")], []))
+            tl.append((lambda t, i=i: self.side(i, "b", t), T["seite"], side_sounds, [(0.1, "b", r["b"]["text"])]))
+            tl.append((lambda t, i=i: self.verdict(i, t), T["urteil"], [(0.3, "pop"), (0.45, "ding" if r["sieger"] else "pop")],
+                       [(0.3, "pip", self.urteile[i])]))
         tl.append(self.final_scene())
-        tl.append((self.loop, T["loop"], [(0.0, "whoosh")]))
+        tl.append((self.loop, T["loop"], [(0.0, "whoosh")], []))
         return tl
 
 
@@ -427,12 +484,14 @@ def main():
     tl = duel.timeline()
     if only_end:
         tl = tl[-2:]
-    audio = np.zeros(int(SR * (sum(d for _, d, _ in tl) + 1)))
+    audio = np.zeros(int(SR * (sum(d for _, d, _, _ in tl) + 1)))
+    script = []
     t0 = 0.0
-    for _, dur, sounds in tl:
+    for _, dur, sounds, lines in tl:
         for off, kind in sounds:
             s = int(SR * (t0 + off))
             audio[s:s + len(SOUNDS[kind])] += SOUNDS[kind]
+        script += ["%02d:%04.1f  %-15s %s" % ((t0 + off) // 60, (t0 + off) % 60, SPEAKERS[who][0] + ":", line) for off, who, line in lines]
         t0 += dur
     wav = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
     with wave.open(wav, "wb") as wf:
@@ -444,11 +503,13 @@ def main():
 
     os.makedirs(os.path.join(os.path.dirname(os.path.abspath(__file__)), "demo"), exist_ok=True)
     out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "demo", os.path.splitext(os.path.basename(theme_path))[0] + ("_kurz" if short else "") + ("_ende" if only_end else "") + ".mp4")
+    with open(out[:-4] + "_skript.txt", "w", encoding="utf-8") as f:
+        f.write("\n".join(script) + "\n")
     ff = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", "%dx%d" % (W, H),
                            "-r", str(FPS), "-i", "-", "-i", wav.name, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "20",
                            "-c:a", "aac", "-b:a", "160k", "-shortest", "-movflags", "+faststart", out], stdin=subprocess.PIPE)
     frames = 0
-    for scene, dur, _ in tl:
+    for scene, dur, _, _ in tl:
         end = round((frames / FPS + dur) * FPS)
         start = frames
         while frames < end:

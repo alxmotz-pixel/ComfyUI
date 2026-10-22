@@ -93,3 +93,9 @@ Pro Seite und Runde: `text`, `bilder`, optional `zahl` (zählt in glatten Schrit
 und `emotion`; `sieger` = `a`, `b` oder `null`. Die Hook steht ab dem ersten Bild, alle Szenen sind auf 120 BPM getaktet
 (Vielfache von 0,5 s), und die letzte Sekunde blendet ins erste Bild zurück (Loop).
 `python duell.py themen/arm_vs_reich.json --kurz` rendert eine ~30-s-Fassung mit den Runden aus `kurz`.
+
+### Dialog mit drei Sprechern
+
+Jede Figur spricht ihren eigenen Satz (`text` pro Seite) in einer Sprechblase in ihrer Farbe. Pip als Schiedsrichter
+sagt die Hook, die Runden-Ansagen, das Urteil, den Abpfiff und die Schlussfrage. Beim Rendern entsteht
+`demo/<thema>_skript.txt` mit allen Sätzen und Startzeiten als Vorlage für die Sprachaufnahmen.

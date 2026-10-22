@@ -7,12 +7,12 @@
     "name": "ARM",
     "kostuem": "arm_figur_b"
   },
-  "hook": "Reich oder arm: Wer lebt wirklich besser?",
+  "hook": "Reich gegen Arm! Wer lebt wirklich besser?",
   "runden": [
     {
       "titel": "URLAUB",
       "a": {
-        "text": "Spontan ans Meer fliegen",
+        "text": "Ich flieg einfach spontan ans Meer!",
         "bilder": [
           "flugzeug_blau",
           "weltkugel_blau"
@@ -24,7 +24,7 @@
         "emotion": "stolz"
       },
       "b": {
-        "text": "Urlaub auf Balkonien",
+        "text": "Und ich chill den ganzen Tag auf Balkonien!",
         "bilder": [
           "haus_rot"
         ],
@@ -39,7 +39,7 @@
     {
       "titel": "EINKAUFEN",
       "a": {
-        "text": "Kauft, ohne auf den Preis zu schauen",
+        "text": "Preise? Schau ich mir gar nicht an!",
         "bilder": [
           "geldbuendel_blau"
         ],
@@ -51,7 +51,7 @@
         "emotion": "stolz"
       },
       "b": {
-        "text": "Jedes Angebot wird verglichen",
+        "text": "Ich kenn jedes Angebot in der Stadt!",
         "bilder": [
           "lupe_rot",
           "geldboerse_rot"
@@ -68,7 +68,7 @@
     {
       "titel": "ARZT",
       "a": {
-        "text": "Termin beim Spezialisten in Tagen",
+        "text": "Mein Spezialist hat in zwei Tagen Zeit.",
         "bilder": [
           "arztkoffer_blau"
         ],
@@ -79,7 +79,7 @@
         "emotion": "stolz"
       },
       "b": {
-        "text": "Wochenlang auf einen Termin warten",
+        "text": "Mein nächster Termin? Irgendwann im Frühling …",
         "bilder": [
           "arztkoffer_rot",
           "stoppuhr_rot"
@@ -95,7 +95,7 @@
     {
       "titel": "AUTO",
       "a": {
-        "text": "Sportwagen in der Garage",
+        "text": "Heute nehm ich mal den Sportwagen.",
         "bilder": [
           "auto_blau"
         ],
@@ -106,7 +106,7 @@
         "emotion": "stolz"
       },
       "b": {
-        "text": "Der Bus kommt mal wieder zu spät",
+        "text": "Ich warte seit 20 Minuten auf den Bus …",
         "bilder": [
           "stoppuhr_rot"
         ],
@@ -121,7 +121,7 @@
     {
       "titel": "SCHLAF",
       "a": {
-        "text": "Liegt wach und denkt an die Firma",
+        "text": "Ich lieg nachts wach und denk an die Firma.",
         "bilder": [
           "bett_blau",
           "geldbuendel_blau"
@@ -133,7 +133,7 @@
         "emotion": "ueberrascht"
       },
       "b": {
-        "text": "Schläft wie ein Stein",
+        "text": "Und ich schlaf wie ein Stein!",
         "bilder": [
           "bett_rot"
         ],
@@ -148,7 +148,7 @@
     {
       "titel": "FREUNDE",
       "a": {
-        "text": "Freunde, solange das Geld da ist",
+        "text": "Meine Freunde mögen vor allem mein Geld.",
         "bilder": [
           "maske_blau"
         ],
@@ -159,7 +159,7 @@
         "emotion": "genervt"
       },
       "b": {
-        "text": "Freunde, die immer bleiben",
+        "text": "Meine Freunde bleiben – auch ohne Geld!",
         "bilder": [
           "herz_rot"
         ],
@@ -178,7 +178,8 @@
     5
   ],
   "ende": {
-    "pokal_klau": true
+    "pokal_klau": true,
+    "spruch": "Danke für die Spende!"
   },
   "frage": "Reich, aber gestresst – oder arm, aber glücklich?"
 }
