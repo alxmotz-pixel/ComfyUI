@@ -1,32 +1,184 @@
 {
-  "a": {"name": "AUTOMATIK", "kostuem": "automatik_figur_a"},
-  "b": {"name": "MANUELL", "kostuem": "manuell_figur_b"},
-  "hook": "Automatik oder Manuell?",
+  "a": {
+    "name": "AUTOMATIK",
+    "kostuem": "automatik_figur_a",
+    "figur": "Blaise"
+  },
+  "b": {
+    "name": "MANUELL",
+    "kostuem": "manuell_figur_b",
+    "figur": "Rocco"
+  },
+  "hook": "Automatik gegen Manuell! Wer schaltet hier wen aus?",
   "runden": [
-    {"titel": "PREIS",
-     "a": {"text": "Beim Neuwagen meist mit Aufpreis", "bilder": ["geldboerse_blau"], "zahl": {"label": "Aufpreis oft rund", "wert": 2000, "vor": "+", "nach": " €"}},
-     "b": {"text": "Meist die günstigere Variante", "bilder": ["geldboerse_rot"], "zahl": {"label": "Aufpreis", "wert": 0, "nach": " €"}},
-     "sieger": "b"},
-    {"titel": "STAU",
-     "a": {"text": "Bremse lösen, rollen, fertig", "bilder": ["pedale_2_blau"], "messer": {"label": "Komfort", "wert": 95}},
-     "b": {"text": "Ständig kuppeln und schalten", "bilder": ["pedale_3_rot"], "messer": {"label": "Komfort", "wert": 35}},
-     "sieger": "a"},
-    {"titel": "VERBRAUCH",
-     "a": {"text": "Moderne Automatik schaltet effizient", "bilder": ["zapfsaeule_blau"], "messer": {"label": "Sparsamkeit", "wert": 78}},
-     "b": {"text": "Sparsam mit gutem Fahrstil", "bilder": ["zapfsaeule_rot"], "messer": {"label": "Sparsamkeit", "wert": 78}},
-     "sieger": null},
-    {"titel": "FAHRSPASS",
-     "a": {"text": "Fährt sich fast von allein", "bilder": ["waehlhebel_blau"], "messer": {"label": "Kontrolle", "wert": 40}},
-     "b": {"text": "Jeder Gang unter Kontrolle", "bilder": ["schaltknueppel_rot"], "messer": {"label": "Kontrolle", "wert": 95}},
-     "sieger": "b"},
-    {"titel": "REPARATUR",
-     "a": {"text": "Getriebeschaden wird teuer", "bilder": ["werkzeug_blau", "geldboerse_blau"], "messer": {"label": "Kosten-Risiko", "wert": 85}},
-     "b": {"text": "Neue Kupplung ist günstiger", "bilder": ["werkzeug_rot"], "messer": {"label": "Kosten-Risiko", "wert": 40}},
-     "sieger": "b"},
-    {"titel": "ZUKUNFT",
-     "a": {"text": "E-Autos fahren ohne Schaltung", "bilder": ["ladestecker_blau"], "messer": {"label": "Zukunft", "wert": 95}},
-     "b": {"text": "Wird immer seltener angeboten", "bilder": ["schaltknueppel_rot", "pfeil_runter_rot"], "messer": {"label": "Zukunft", "wert": 25}},
-     "sieger": "a"}
+    {
+      "titel": "PREIS",
+      "a": {
+        "text": "Zweitausend Euro Aufpreis? Peanuts, mein Lieber.",
+        "bilder": [
+          "geldboerse_blau"
+        ],
+        "zahl": {
+          "label": "Aufpreis oft rund",
+          "wert": 2000,
+          "vor": "+",
+          "nach": " €"
+        },
+        "emotion": "stolz"
+      },
+      "b": {
+        "text": "Ich spar die Kohle und hab trotzdem mehr Spaß!",
+        "bilder": [
+          "geldboerse_rot"
+        ],
+        "zahl": {
+          "label": "Aufpreis",
+          "wert": 0,
+          "nach": " €"
+        },
+        "emotion": "stolz"
+      },
+      "sieger": "b",
+      "ansage": "Runde 1: Der Preis!"
+    },
+    {
+      "titel": "STAU",
+      "a": {
+        "text": "Ich lehne mich einfach zurück. Perfekt wie immer.",
+        "bilder": [
+          "pedale_2_blau"
+        ],
+        "messer": {
+          "label": "Komfort",
+          "wert": 95
+        },
+        "emotion": "stolz"
+      },
+      "b": {
+        "text": "Kuppeln, schalten, kuppeln … mein linkes Bein ist durch!",
+        "bilder": [
+          "pedale_3_rot"
+        ],
+        "messer": {
+          "label": "Komfort",
+          "wert": 35
+        },
+        "emotion": "genervt"
+      },
+      "sieger": "a",
+      "ansage": "Runde 2: Stau!"
+    },
+    {
+      "titel": "VERBRAUCH",
+      "a": {
+        "text": "Meine Automatik schaltet effizienter, als du denkst.",
+        "bilder": [
+          "zapfsaeule_blau"
+        ],
+        "messer": {
+          "label": "Sparsamkeit",
+          "wert": 78
+        },
+        "emotion": "neutral"
+      },
+      "b": {
+        "text": "Und ich fahr sparsam, mit Gefühl im Fuß!",
+        "bilder": [
+          "zapfsaeule_rot"
+        ],
+        "messer": {
+          "label": "Sparsamkeit",
+          "wert": 78
+        },
+        "emotion": "neutral"
+      },
+      "sieger": null,
+      "ansage": "Runde 3: Verbrauch!",
+      "urteil": "Unentschieden! Beide sparsam."
+    },
+    {
+      "titel": "FAHRSPASS",
+      "a": {
+        "text": "Fahrspaß? Dafür hab ich doch Sitzheizung.",
+        "bilder": [
+          "waehlhebel_blau"
+        ],
+        "messer": {
+          "label": "Kontrolle",
+          "wert": 40
+        },
+        "emotion": "neutral"
+      },
+      "b": {
+        "text": "Runterschalten, Gas geben – DAS ist Fahren!",
+        "bilder": [
+          "schaltknueppel_rot"
+        ],
+        "messer": {
+          "label": "Kontrolle",
+          "wert": 95
+        },
+        "emotion": "stolz"
+      },
+      "sieger": "b",
+      "ansage": "Runde 4: Fahrspaß!"
+    },
+    {
+      "titel": "REPARATUR",
+      "a": {
+        "text": "Getriebeschaden? Zahlt die Versicherung … hoffentlich.",
+        "bilder": [
+          "werkzeug_blau",
+          "geldboerse_blau"
+        ],
+        "messer": {
+          "label": "Kosten-Risiko",
+          "wert": 85
+        },
+        "emotion": "ueberrascht"
+      },
+      "b": {
+        "text": "Neue Kupplung, kleiner Preis, weiter geht's!",
+        "bilder": [
+          "werkzeug_rot"
+        ],
+        "messer": {
+          "label": "Kosten-Risiko",
+          "wert": 40
+        },
+        "emotion": "stolz"
+      },
+      "sieger": "b",
+      "ansage": "Runde 5: Reparatur!"
+    },
+    {
+      "titel": "ZUKUNFT",
+      "a": {
+        "text": "E-Autos schalten gar nicht mehr. Willkommen in der Zukunft, versteht sich.",
+        "bilder": [
+          "ladestecker_blau"
+        ],
+        "messer": {
+          "label": "Zukunft",
+          "wert": 95
+        },
+        "emotion": "stolz"
+      },
+      "b": {
+        "text": "Ich bin halt Old School … fragt sich nur, wie lange noch.",
+        "bilder": [
+          "schaltknueppel_rot",
+          "pfeil_runter_rot"
+        ],
+        "messer": {
+          "label": "Zukunft",
+          "wert": 25
+        },
+        "emotion": "ueberrascht"
+      },
+      "sieger": "a",
+      "ansage": "Runde 6: Die Zukunft!"
+    }
   ],
-  "frage": "Was fährst du: Automatik oder Manuell?"
+  "frage": "Und du: Automatik oder Manuell? Schreib's in die Kommentare!"
 }

@@ -3,7 +3,8 @@
     python generate.py --chrome ...                       # PNGs first
     python duell.py themen/automatik_vs_manuell.json
 
-Theme keys: "a" = blue side, "b" = red side, each {"name", "kostuem"?}; "hook" = opening line;
+Theme keys: "a" = blue side, "b" = red side, each {"name", "figur"? (character name, see charaktere.md), "kostuem"?};
+"hook" = opening line;
 "runden" = rounds {"titel", "a": side, "b": side, "sieger": "a" | "b" | null} where a side is
 {"text", "bilder": [prop/element names], "zahl"?: {"label", "wert", "vor"?, "nach"?}, "messer"?: {"label", "wert" 0-100}};
 "frage" = closing question; optional "ende" = {"sieger": pose, "verlierer": pose} for the final scene
@@ -13,7 +14,7 @@ multiple of one beat at 120 BPM, and the last second fades back into the first f
 Referee Pip whistles every round, shows the loser a yellow card and calls the final score. A side may set "emotion".
 
 Dialogue: three speakers. Each side's "text" is that bird's own line, shown in a speech bubble in its colour.
-The referee says the hook, every round's "ansage" (default "Runde N: TITEL!"), the verdict, "ende.abpfiff" and the
+The referee says the hook, every round's "ansage" (default "Runde N: TITEL!"), the verdict (or a round's "urteil"), "ende.abpfiff" and the
 closing question; with pokal_klau the thief says "ende.spruch". All lines with their start times are written to
 demo/<theme>_skript.txt for recording the voices later.
 """
@@ -162,7 +163,8 @@ class Duel:
         self.question = speech(th["frage"], "pip", 0.5, 62, 880)
         end = th.get("ende", {})
         self.ansagen = [r.get("ansage", "Runde %d: %s!" % (i + 1, r["titel"].capitalize())) for i, r in enumerate(self.rounds)]
-        self.urteile = ["Punkt für %s!" % th[r["sieger"]]["name"].capitalize() if r["sieger"] else "Unentschieden!" for r in self.rounds]
+        self.urteile = [r.get("urteil") or ("Punkt für %s!" % th[r["sieger"]].get("figur", th[r["sieger"]]["name"].capitalize()) if r["sieger"] else "Unentschieden!")
+                        for r in self.rounds]
         self.urteil_bubbles = [speech(u, "pip", 0.5, 52) for u in self.urteile]
         sa, sb = self.score[-1]
         winner = "a" if sa > sb else "b" if sb > sa else None
