@@ -20,7 +20,9 @@ demo/<theme>_skript.txt. With "ende": {"abwuergen": true, "spruch", "konter", "p
 then stalls his car on the street while the other bird rolls past ("konter") and Pip comments ("pip").
 
 Voices: if stimmen/<theme>/ holds one mp3 per line (sorted by name, in timeline order), each scene is stretched to
-fit its spoken lines (rounded up to the beat) and the voices are mixed into the soundtrack.
+fit its spoken lines (rounded up to the beat), the voices are mixed into the soundtrack and the speaking bird's
+beak opens with the loudness of its voice. "ansage_sprechen": false keeps the round titles silent (text only);
+"teaser": "<text>" opens the video with 1.5 s of the stalling car before the hook.
 """
 
 import glob
@@ -37,7 +39,7 @@ import numpy as np
 
 from PIL import Image, ImageDraw
 
-from demo_clip import (BLUE, FPS, H, OUT, RED, SIDES, SOUNDS, SR, W, clamp, ease, ease_out_back, font, img, pill,
+from demo_clip import (BLUE, FPS, H, OUT, PNG, RED, SIDES, SOUNDS, SR, W, clamp, ease, ease_out_back, font, img, pill,
                        pop, put, whistle)
 
 YELLOW = (255, 200, 61)
@@ -191,7 +193,9 @@ class Duel:
             sa, sb = self.score[-1]
             self.score.append((sa + (r["sieger"] == "a"), sb + (r["sieger"] == "b")))
         self.boards = {}
+        self.talk = {}
         self.hook = speech(th["hook"], "pip", 0.5, 72, 900)
+        self.teaser_pill = pill(th["teaser"], OUT, 60) if th.get("teaser") else None
         self.question = speech(th["frage"], "pip", 0.5, 62, 880)
         end = th.get("ende", {})
         self.ansagen = [r.get("ansage", "Runde %d: %s!" % (i + 1, r["titel"].capitalize())) for i, r in enumerate(self.rounds)]
@@ -209,7 +213,7 @@ class Duel:
             other = "b" if winner == "a" else "a"
             self.spruch_bubble = speech(end["spruch"], winner, 0.5, 56, 700)
             self.konter_bubble = speech(end["konter"], other, 0.5, 56, 600)
-            self.pip_bubble = speech(end["pip"], "pip", 0.2, 56, 560)
+            self.pip_bubble = "pip" in end and speech(end["pip"], "pip", 0.2, 56, 560)
         self.vs = img("5_elemente/vs", 460)
         self.labels = {k: pill(th[k]["name"], SIDES[k][1]) for k in SIDES}
         self.texts = [{k: speech(r[k]["text"], k, 0.25 if k == "a" else 0.75, 56, 800) for k in SIDES} for r in self.rounds]
@@ -227,12 +231,19 @@ class Duel:
 
     # characters ---------------------------------------------------------------
 
+    def sprite(self, side, emotion):
+        """Bird sprite; while that bird is speaking and its beak is up, the open-beak frame."""
+        name = "2_figuren/%s_%s" % (SIDES[side][0], emotion)
+        if self.talk.get(side) and os.path.exists(os.path.join(PNG, name + "_sprechen_freigestellt.png")):
+            return name + "_sprechen_freigestellt"
+        return name + "_freigestellt"
+
     def character(self, f, side, emotion, cx, bottom, t, height, react=None, angle=0.0, sy=None):
         if sy is None:
             sy = 1 + 0.015 * math.sin((t + (0.4 if side == "b" else 0)) * 2 * math.pi * 1.2)
         if react is not None and 0 <= t - react < 0.3:
             sy += 0.08 * math.sin((t - react) / 0.3 * math.pi)
-        im = img("2_figuren/%s_%s_freigestellt" % (SIDES[side][0], emotion), height).copy()
+        im = img(self.sprite(side, emotion), height).copy()
         costume = self.th[side].get("kostuem")
         if costume:
             im.alpha_composite(img("6_kostueme/" + costume, height))
@@ -243,7 +254,8 @@ class Duel:
     def pip(self, f, cx, bottom, t, height, blowing=False, card=None):
         """Referee Pip; `card` = -1/1 holds a yellow card up on that side."""
         sy = 1 + 0.015 * math.sin((t + 0.2) * 2 * math.pi * 1.2) + (0.05 * math.sin(t * 40) if blowing else 0)
-        for name in ("1_maskottchen/pip_frontal_freigestellt", "6_kostueme/pip_schiedsrichter" + ("_pfeift" if blowing else "")):
+        base = "1_maskottchen/pip_frontal_freigestellt" if self.talk.get("pip") else "1_maskottchen/pip_frontal_zu_freigestellt"
+        for name in (base, "6_kostueme/pip_schiedsrichter" + ("_pfeift" if blowing else "")):
             im = img(name, height)
             put(f, im, cx, bottom - im.height * sy / 2, 2 - sy, sy)
         k = height / 1536
@@ -264,8 +276,34 @@ class Duel:
     def stage(self):
         return img("3_hintergruende/bg1_geteilte_buehne", H).copy()
 
+    TEASER = 1.5
+
+    def teaser(self, t):
+        """Flash-forward of the stalling car so the viewer wants to see how it ends."""
+        f = img("3_hintergruende/bg3_stadt_skyline_tag", H).copy()
+        sa, sb = self.score[-1]
+        win = "a" if sa > sb else "b"
+        im = img("4_requisiten/auto_%s" % SIDES[win][2], 640)
+        shake = 10 * math.sin(t * 70)
+        bird = img(self.sprite(win, "ueberrascht"), 380)
+        roof = 1624 + shake - 320 + 229
+        put(f, bird, 710, roof - 170 - 380 * self.TOP[win] + 190)
+        put(f, im, 700, 1624 + shake)
+        d = ImageDraw.Draw(f)
+        for i in range(6):
+            k = (t * 1.5 + i / 6) % 1
+            r = 30 + 60 * k
+            g = round(150 + 80 * k)
+            d.ellipse([360 - 80 * k - r, 1700 - 200 * k - r, 360 - 80 * k + r, 1700 - 200 * k + r], fill=(g, g, g))
+        put(f, self.teaser_pill, W / 2, 560, 1 + 0.06 * math.sin(clamp(t / 0.3) * math.pi))
+        return f
+
     def intro(self, t):
-        """Everything is on screen in the very first frame (hook at second 0); only the bounce moves in."""
+        """Hook at second 0: an optional teaser of the ending, then both birds, VS and the hook line."""
+        if self.teaser_pill is not None:
+            if t < self.TEASER:
+                return self.teaser(t)
+            t -= self.TEASER
         f = self.stage()
         self.character(f, "a", "neutral", 270, 1700, t, 900, react=0.0)
         self.character(f, "b", "neutral", 810, 1700, t, 900, react=0.1)
@@ -512,7 +550,7 @@ class Duel:
             cy = 1624 + shake
             roof = cy - 320 + 229
             bird_h = 380 if side == "b" else 340
-            bird = img("2_figuren/%s_%s_freigestellt" % (SIDES[side][0], emotion), bird_h)
+            bird = img(self.sprite(side, emotion), bird_h)
             vis_top = roof - (170 if side == "b" else 230)
             put(f, bird, cx + 10, vis_top - bird_h * self.TOP[side] + bird_h / 2)
             put(f, im, cx, cy)
@@ -537,7 +575,7 @@ class Duel:
                 pop(f, self.konter_bubble, min(max(bx, 380), W - 380), roof_b - 260, t - S["konter"])
         if t >= S["pip_satz"]:
             self.pip(f, 170, 1980, t, 460)
-            if t < S["frage"]:
+            if self.pip_bubble and t < S["frage"]:
                 pop(f, self.pip_bubble, 380, 1260, t - S["pip_satz"])
         if t >= S["frage"]:
             pop(f, self.question, W / 2, 620, t - S["frage"])
@@ -545,7 +583,10 @@ class Duel:
 
     def abwuergen_schedule(self, voice):
         """Start times inside the final scene, spaced by the spoken lines (or fixed reading times without voices)."""
-        d = [voice[i] if voice else 2.0 for i in range(5)]
+        has_pip = "pip" in self.th["ende"]
+        d = list(voice) if voice else [2.0] * (5 if has_pip else 4)
+        if not has_pip:
+            d.insert(3, -0.3)
         S = {"spruch": 0.3 + d[0] + 0.2}
         S["strasse"] = S["spruch"] + d[1] + 0.3
         S["rev"] = S["strasse"] + 0.3
@@ -568,8 +609,10 @@ class Duel:
             sa, sb = self.score[-1]
             win = "a" if sa > sb else "b"
             lines = [(0.3, "pip", self.abpfiff), (S["spruch"], win, end["spruch"]),
-                     (S["konter"], "b" if win == "a" else "a", end["konter"]), (S["pip_satz"], "pip", end["pip"]),
-                     (S["frage"], "pip", self.th["frage"])]
+                     (S["konter"], "b" if win == "a" else "a", end["konter"])]
+            if "pip" in end:
+                lines.append((S["pip_satz"], "pip", end["pip"]))
+            lines.append((S["frage"], "pip", self.th["frage"]))
             return (lambda t: self.finale_abwuergen(t, S)), S["ende"], sounds, lines
         if end.get("pokal_klau"):
             K = self.KLAU
@@ -589,9 +632,12 @@ class Duel:
     def timeline(self, voices=None):
         """(scene, duration, [(offset, sound)], [(offset, speaker, line)]); `voices` = one sample array per line."""
         T = self.T
-        tl = [(self.intro, T["intro"], [(0.0, "whoosh"), (0.0, "pop")], [(0.0, "pip", self.th["hook"])])]
+        intro_len = T["intro"] + (self.TEASER if self.teaser_pill is not None else 0)
+        tl = [(self.intro, intro_len, [(0.0, "rev"), (self.TEASER if self.teaser_pill is not None else 0.0, "whoosh")],
+               [(0.0, "pip", self.th["hook"])])]
         for i, r in enumerate(self.rounds):
-            tl.append((lambda t, i=i: self.round_intro(i, t), T["runde"], [(0.1, "pfiff"), (0.15, "pop")], [(0.5, "pip", self.ansagen[i])]))
+            spoken = [(0.5, "pip", self.ansagen[i])] if self.th.get("ansage_sprechen", True) else []
+            tl.append((lambda t, i=i: self.round_intro(i, t), T["runde"] if spoken else 1.0, [(0.1, "pfiff"), (0.15, "pop")], spoken))
             side_sounds = [(0.1, "pop"), (0.3, "pop"), (0.5, "pop")]
             tl.append((lambda t, i=i: self.side(i, "a", t), T["seite"], side_sounds, [(0.1, "a", r["a"]["text"])]))
             tl.append((lambda t, i=i: self.wipe(i, t), T["wisch"], [(0.0, "whoosh")], []))
@@ -659,11 +705,26 @@ def main():
     ff = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", "%dx%d" % (W, H),
                            "-r", str(FPS), "-i", "-", "-i", wav.name, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "20",
                            "-c:a", "aac", "-b:a", "160k", "-shortest", "-movflags", "+faststart", out], stdin=subprocess.PIPE)
+    # who is talking in each video frame: the beak is open while that voice is loud
+    talking = {}
+    if voices:
+        t0, li = 0.0, 0
+        for _, dur, _, lines in tl:
+            for off, who, _ in lines:
+                v = voices[li]
+                start = t0 + off
+                for n in range(int(len(v) / SR * FPS)):
+                    chunk = v[int(n * SR / FPS):int((n + 1) * SR / FPS)]
+                    if chunk.size and np.sqrt(np.mean(chunk ** 2)) > 0.04:
+                        talking.setdefault(round(start * FPS) + n, set()).add(who)
+                li += 1
+            t0 += dur
     frames = 0
     for scene, dur, _, _ in tl:
         end = round((frames / FPS + dur) * FPS)
         start = frames
         while frames < end:
+            duel.talk = {k: True for k in talking.get(frames, ())}
             ff.stdin.write(scene((frames - start) / FPS).convert("RGB").tobytes())
             frames += 1
     ff.stdin.close()

@@ -1,20 +1,22 @@
 {
   "a": {
     "name": "AUTOMATIK",
-    "kostuem": "automatik_figur_a",
-    "figur": "Blaise"
+    "figur": "Blaise",
+    "kostuem": "automatik_figur_a"
   },
   "b": {
     "name": "MANUELL",
-    "kostuem": "manuell_figur_b",
-    "figur": "Rocco"
+    "figur": "Rocco",
+    "kostuem": "manuell_figur_b"
   },
-  "hook": "Automatik gegen Manuell! Wer schaltet hier wen aus?",
+  "teaser": "Wie das endet? Bleib dran!",
+  "hook": "Automatik oder Manuell? Einer von beiden blamiert sich heute richtig.",
+  "ansage_sprechen": false,
   "runden": [
     {
       "titel": "PREIS",
       "a": {
-        "text": "Zweitausend Euro Aufpreis? Peanuts, mein Lieber.",
+        "text": "Zweitausend Euro Aufpreis? Peanuts.",
         "bilder": [
           "geldboerse_blau"
         ],
@@ -27,9 +29,10 @@
         "emotion": "stolz"
       },
       "b": {
-        "text": "Ich spar die Kohle und hab trotzdem mehr Spaß!",
+        "text": "Peanuts? Davon tank ich monatelang!",
         "bilder": [
-          "geldboerse_rot"
+          "geldboerse_rot",
+          "zapfsaeule_rot"
         ],
         "zahl": {
           "label": "Aufpreis",
@@ -38,153 +41,94 @@
         },
         "emotion": "stolz"
       },
-      "sieger": "b",
-      "ansage": "Runde 1: Der Preis!"
+      "sieger": "b"
     },
     {
       "titel": "STAU",
       "a": {
-        "text": "Ich lehne mich einfach zurück. Perfekt wie immer.",
+        "text": "Stau? Ich lehn mich einfach zurück.",
         "bilder": [
           "pedale_2_blau"
         ],
         "messer": {
-          "label": "Komfort",
+          "label": "Gefühlter Komfort",
           "wert": 95
         },
         "emotion": "stolz"
       },
       "b": {
-        "text": "Kuppeln, schalten, kuppeln … mein linkes Bein ist durch!",
+        "text": "Und ich mach Beintraining. Kuppeln, kuppeln, kuppeln!",
         "bilder": [
           "pedale_3_rot"
         ],
         "messer": {
-          "label": "Komfort",
+          "label": "Gefühlter Komfort",
           "wert": 35
         },
         "emotion": "genervt"
       },
-      "sieger": "a",
-      "ansage": "Runde 2: Stau!"
-    },
-    {
-      "titel": "VERBRAUCH",
-      "a": {
-        "text": "Meine Automatik schaltet effizienter, als du denkst.",
-        "bilder": [
-          "zapfsaeule_blau"
-        ],
-        "messer": {
-          "label": "Sparsamkeit",
-          "wert": 78
-        },
-        "emotion": "neutral"
-      },
-      "b": {
-        "text": "Und ich fahr sparsam, mit Gefühl im Fuß!",
-        "bilder": [
-          "zapfsaeule_rot"
-        ],
-        "messer": {
-          "label": "Sparsamkeit",
-          "wert": 78
-        },
-        "emotion": "neutral"
-      },
-      "sieger": null,
-      "ansage": "Runde 3: Verbrauch!",
-      "urteil": "Unentschieden! Beide sparsam."
+      "sieger": "a"
     },
     {
       "titel": "FAHRSPASS",
       "a": {
-        "text": "Fahrspaß? Dafür hab ich doch Sitzheizung.",
+        "text": "Fahrspaß? Ich hab Sitzheizung.",
         "bilder": [
           "waehlhebel_blau"
         ],
         "messer": {
-          "label": "Kontrolle",
+          "label": "Gefühlter Fahrspaß",
           "wert": 40
         },
         "emotion": "neutral"
       },
       "b": {
-        "text": "Runterschalten, Gas geben – DAS ist Fahren!",
+        "text": "Sitzheizung ist kein Fahrspaß, Kollege!",
         "bilder": [
           "schaltknueppel_rot"
         ],
         "messer": {
-          "label": "Kontrolle",
+          "label": "Gefühlter Fahrspaß",
           "wert": 95
         },
         "emotion": "stolz"
       },
-      "sieger": "b",
-      "ansage": "Runde 4: Fahrspaß!"
+      "sieger": "b"
     },
     {
       "titel": "REPARATUR",
       "a": {
-        "text": "Getriebeschaden? Zahlt die Versicherung … hoffentlich.",
+        "text": "Getriebeschaden? Zahlt die Versicherung.",
         "bilder": [
           "werkzeug_blau",
           "geldboerse_blau"
         ],
-        "messer": {
-          "label": "Kosten-Risiko",
-          "wert": 85
+        "zahl": {
+          "label": "Getriebeschaden: oft über",
+          "wert": 3000,
+          "nach": " €"
         },
-        "emotion": "ueberrascht"
+        "emotion": "stolz"
       },
       "b": {
-        "text": "Neue Kupplung, kleiner Preis, weiter geht's!",
+        "text": "Verschleiß zahlt keine Versicherung, Kollege!",
         "bilder": [
           "werkzeug_rot"
         ],
-        "messer": {
-          "label": "Kosten-Risiko",
-          "wert": 40
+        "zahl": {
+          "label": "Neue Kupplung: oft rund",
+          "wert": 1000,
+          "nach": " €"
         },
         "emotion": "stolz"
       },
-      "sieger": "b",
-      "ansage": "Runde 5: Reparatur!"
-    },
-    {
-      "titel": "ZUKUNFT",
-      "a": {
-        "text": "E-Autos schalten gar nicht mehr. Willkommen in der Zukunft, versteht sich.",
-        "bilder": [
-          "ladestecker_blau"
-        ],
-        "messer": {
-          "label": "Zukunft",
-          "wert": 95
-        },
-        "emotion": "stolz"
-      },
-      "b": {
-        "text": "Ich bin halt Old School … fragt sich nur, wie lange noch.",
-        "bilder": [
-          "schaltknueppel_rot",
-          "pfeil_runter_rot"
-        ],
-        "messer": {
-          "label": "Zukunft",
-          "wert": 25
-        },
-        "emotion": "ueberrascht"
-      },
-      "sieger": "a",
-      "ansage": "Runde 6: Die Zukunft!"
+      "sieger": "b"
     }
   ],
   "ende": {
     "abwuergen": true,
-    "spruch": "Läuft bei mir! Wer ist jetzt der Gewinner?",
-    "konter": "Perfekt wie immer.",
-    "pip": "Tja … verschaltet."
+    "spruch": "Läuft bei mir!",
+    "konter": "Perfekt wie immer."
   },
   "frage": "Und du: Automatik oder Manuell? Schreib's in die Kommentare!"
 }

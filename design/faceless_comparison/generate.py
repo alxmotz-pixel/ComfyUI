@@ -205,7 +205,7 @@ def bird_foot(s, x, y, toes):
         s.tube("M%g,%g L%g,%g" % (x, y, x + dx, y + dy), 16, GOLD)
 
 
-def draw_pip_front(s):
+def draw_pip_front(s, beak_open=True):
     s.shadow(512, 1415, 270, 34)
     for x in (450, 574):
         bird_foot(s, x, 1385, ((-44, 22), (0, 30), (44, 22)))
@@ -227,14 +227,15 @@ def draw_pip_front(s):
         s.add('<circle cx="%d" cy="845" r="96" fill="#FFF" fill-opacity="0.15" stroke="%s" stroke-width="16"/>' % (x, OUT))
         s.line("M%d,790 Q%d,768 %d,772" % (x - 56, x - 40, x - 18), 9, "#FFF", 'opacity="0.8"')
     s.line("M506,835 Q512,820 518,835", 16)
-    s.path(BEAK_LO, s.ball(mix(GOLD, RED["dark"], 0.35)))
+    if beak_open:
+        s.path(BEAK_LO, s.ball(mix(GOLD, RED["dark"], 0.35)))
     s.path(BEAK_UP, s.ball(GOLD))
     bow_tie(s)
 
 
-def pip_front(bg):
+def pip_front(bg, beak_open=True):
     s = Svg(1024, 1536, bg)
-    draw_pip_front(s)
+    draw_pip_front(s, beak_open)
     return s
 
 
@@ -292,7 +293,7 @@ def bird_face(s, c, cx, cy, gap, rx, ry, expr, brow_dy):
               % (x, y - 30, x + 4, y - 12, x + 16, y + 4, 18, 18, x - 16, y + 4, x - 4, y - 12, x, y - 30, BLUE["light"], OUT))
 
 
-def figure_a(expr, bg):
+def figure_a(expr, bg, talk=False):
     """Side A: tall, slim bird with a sideways beak and a proud crest. Blue."""
     c = BLUE
     s = Svg(1024, 1536, bg)
@@ -315,7 +316,7 @@ def figure_a(expr, bg):
     bird_face(s, c, 512, 620, 124, 44, 54, expr, 26)
     tilt = {"proud": -10, "annoyed": 8, "sad": 20}.get(expr, 0)
     s.add('<g transform="rotate(%d 490 720)">' % tilt)
-    if expr in ("surprised", "happy"):
+    if talk or expr in ("surprised", "happy"):
         s.path("M488,735 L600,768 L488,782 Z", s.ball(mix(GOLD, RED["dark"], 0.35)))
         s.path("M488,690 L626,708 L488,728 Z", s.ball(GOLD))
     else:
@@ -328,7 +329,7 @@ def figure_a(expr, bg):
     return s
 
 
-def figure_b(expr, bg):
+def figure_b(expr, bg, talk=False):
     """Side B: short, round bird, loud and direct. Red."""
     c = RED
     s = Svg(1024, 1536, bg)
@@ -348,7 +349,7 @@ def figure_b(expr, bg):
     for x in (360, 664):
         s.add('<ellipse cx="%d" cy="1100" rx="40" ry="20" fill="%s" opacity="0.4"/>' % (x, BLUSH))
     bird_face(s, c, 512, 1015, 190, 58, 66, expr, 30)
-    if expr in ("surprised", "happy"):
+    if talk or expr in ("surprised", "happy"):
         s.path("M478,1120 L546,1120 Q540,1170 512,1190 Q484,1170 478,1120 Z", s.ball(mix(GOLD, RED["dark"], 0.35)))
         s.path("M466,1098 Q512,1076 558,1098 Q540,1122 512,1130 Q484,1122 466,1098 Z", s.ball(GOLD))
     else:
@@ -1225,8 +1226,12 @@ def build():
                            ("happy", "jubelnd"), ("sad", "traurig"), ("cheer_sad", "jubelnd_traurig"), ("content", "gluecklich")):
             out["2_figuren/figur_a_blau_%s%s" % (name, suffix)] = figure_a(expr, bg)
             out["2_figuren/figur_b_rot_%s%s" % (name, suffix)] = figure_b(expr, bg)
+            if bg is None:  # open-beak frames for lip sync
+                out["2_figuren/figur_a_blau_%s_sprechen_freigestellt" % name] = figure_a(expr, None, True)
+                out["2_figuren/figur_b_rot_%s_sprechen_freigestellt" % name] = figure_b(expr, None, True)
         out["2_figuren/figur_a_blau_seitlich%s" % suffix] = figure_side(True, bg)
         out["2_figuren/figur_b_rot_seitlich%s" % suffix] = figure_side(False, bg)
+    out["1_maskottchen/pip_frontal_zu_freigestellt"] = pip_front(None, False)
     out["3_hintergruende/bg1_geteilte_buehne"] = bg_split()
     out["3_hintergruende/bg2_studio_podest"] = bg_podium()
     out["3_hintergruende/bg3_stadt_skyline_tag"] = bg_city()
